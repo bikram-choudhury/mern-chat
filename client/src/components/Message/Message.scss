@@ -1,0 +1,16 @@
+.content .messages ul li {
+    .user-img {
+        img {
+            width: 22px;
+            border-radius: 50%;
+            margin-top: 9px;
+        }
+    }
+    p {
+        padding: 10px 15px;
+        border-radius: 20px;
+        max-width: 300px;
+        line-height: 1.2;
+        margin: 0;
+    }
+}

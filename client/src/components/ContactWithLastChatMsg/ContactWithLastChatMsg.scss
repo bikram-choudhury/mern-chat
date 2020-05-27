@@ -1,0 +1,75 @@
+.contact-with-recent-chat {
+    &.wrap {
+        position: relative;
+        padding-bottom: 12px;
+        .user-img {
+            float: left;
+            img {
+                width: 40px;
+                border-radius: 50%;
+                margin-right: 10px;
+            }
+        }
+        .meta {
+            flex-grow: 1;
+            .name {
+                font-weight: 600;
+            }
+            .msg-preview {
+                margin: 5px 0 0 0;
+                padding: 0 0 1px;
+                font-weight: 400;
+                -moz-transition: 1s all ease;
+                -o-transition: 1s all ease;
+                -webkit-transition: 1s all ease;
+                transition: 1s all ease;
+
+                span {
+                    position: initial;
+                    border-radius: initial;
+                    background: none;
+                    border: none;
+                    padding: 0 2px 0 0;
+                    margin: 0 0 0 1px;
+                    opacity: 0.5;
+                }
+            }
+        }
+        span {
+            position: absolute;
+            left: 0;
+            margin: -2px 0 0 -2px;
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            border: 2px solid #2c3e50;
+            background: #95a5a6;
+
+            &.online {
+                background: #2ecc71;
+            }
+            &.away {
+                background: #f1c40f;
+            }
+            &.busy {
+                background: #e74c3c;
+            }
+        }
+    }
+}
+
+@media screen and (max-width: 735px) {
+    #frame #sidepanel #contacts ul li.contact {
+        .contact-with-recent-chat.wrap {
+            .user-img {
+                margin: 5px 0;
+                img {
+                    width: 35px;
+                }
+            }
+            .meta {
+                display: none;
+            }
+        }
+    }
+}
