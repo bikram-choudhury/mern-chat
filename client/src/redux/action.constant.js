@@ -1,3 +1,6 @@
+// Meeting
+export const SAVE_MEETING_DETAILS = 'SAVE_MEETING_DETAILS';
+
 // Auth
 export const SET_TOKEN = 'SET_TOKEN';
 export const LOGOUT = 'LOGOUT';

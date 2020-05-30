@@ -4,17 +4,21 @@ import { LOGOUT } from "../action.constant"
 import * as msg from './message.reducer';
 import * as participants from './participants.reducer';
 import * as auth from './authentication.reducer';
+import * as meeting from './meeting.reducer';
 
 const appReducer = combineReducers({
     messages: msg.messageReducer,
     participants: participants.participantsReducer,
     authentication: auth.authReducer,
+    meeting: meeting.meetingReducer
 })
 
 export const reducers = (state, action) => {
     if (action.type === LOGOUT) return {};
     return appReducer(state, action)
 };
+
+export const getMeetingDetails = state => state.meeting;
 
 export const getAccessToken = state => auth.getAccessToken(state.authentication);
 export const getLoggedInUser = state => auth.getLoggedInUser(state.authentication);

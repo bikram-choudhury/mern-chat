@@ -50,4 +50,32 @@ body {
             }
         }
     }
+    .flex-form-holder {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+
+        .form-wrapper {
+            background: #e6eaea;
+            
+            .form-group {
+                display: flex;
+                flex-direction: column;
+                margin-top: 10px;
+
+                input {
+                    font-family: "proxima-nova", "Source Sans Pro", sans-serif;
+                    border: none;
+                    padding: 10px;
+                    font-size: 1em;
+                    color: #32465a;
+                    margin-top: 10px;
+
+                    &:focus {
+                        outline: none;
+                    }
+                }
+            }
+        }
+    }
 }

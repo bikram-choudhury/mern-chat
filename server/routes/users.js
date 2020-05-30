@@ -43,13 +43,8 @@ async function saveParticipant(request, response, next) {
   const meetingId = body.meetingId;
 
   if (meetingId) {
-    const user = new USER({
-      name: body.name,
-      meetingId
-    });
     try {
-      let newUser = await user.save();
-      newUser = newUser.toObject();
+      const newUser = await controller.createUser(body);
       request.participant = newUser;
       next();
     } catch (error) {
@@ -63,14 +58,10 @@ async function saveParticipant(request, response, next) {
 async function prepareAndSendUserJoingResponse(request, response) {
   try {
     const user = request.participant;
-    const accessToken = Utils.Auth.createToken(user);
+    const tokens = await controller.getLoggedInTokens(user);
     const allParticipants = await USER.find({ meetingId: user.meetingId });
     response.json({
-      tokens: {
-        accessToken,
-        tokenType: Utils.Auth.tokenType,
-        refreshToken: ''
-      },
+      tokens,
       participants: allParticipants
     });
   } catch (error) {

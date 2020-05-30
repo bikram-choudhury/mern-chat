@@ -16,8 +16,8 @@ const ContactWithLastChatMsg = props => {
 
     const currentUserId = '001';
     const hostId = hostedBy || '1';
-    const participantName = name + '-' + userId +
-        `${userId === hostId ? ' ( Host ) ' : ''}` + 
+    const participantName = name + '-' +
+        `${userId === hostId ? ' ( Host ) ' : ''}` +
         `${userId === currentUserId ? ' ( Me ) ' : ''}`;
     return (
         <div className="contact-with-recent-chat wrap">

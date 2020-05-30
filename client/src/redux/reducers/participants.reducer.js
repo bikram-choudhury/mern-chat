@@ -8,6 +8,10 @@ const initialState = {
 export const participantsReducer = (state = initialState, { type, payload }) => {
     switch (type) {
         case ADD_PARTICIPANT:
+            payload = payload.map(participant => {
+                participant.isActive = false;
+                return participant;
+            });
             return {
                 list: [...state.list, ...payload], error: null
             };

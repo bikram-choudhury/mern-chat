@@ -16,9 +16,11 @@ store.subscribe(() => {
     const authentication = state && state.authentication;
     const messages = state && state.messages;
     const participants = state && state.participants;
+    const meeting = state && state.meeting;
 
     saveState({
         authentication: { ...authentication },
+        meeting: { ...meeting },
         messages: { ...messages, error: null },
         participants: { ...participants, error: null }
     })

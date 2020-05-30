@@ -6,6 +6,7 @@ import { saveParticipant } from '../../redux/actions/participants.action';
 import { connect } from 'react-redux';
 import { getParticipants } from '../../redux/reducers/';
 import { useFocus } from '../../hooks/useFocus';
+import { statusList} from '../../MockData/_profile-status';
 
 const UserJoiningForm = props => {
     const {
@@ -33,11 +34,12 @@ const UserJoiningForm = props => {
     const onSubmit = data => {
         saveUserToJoinMeeting({
             meetingId: data.meetingId || meetingId,
-            name: data.userName
+            name: data.userName,
+            currentStatus: statusList[0].value
         }, { history });
     }
     return (
-        <div className="user-joining-form wrapper">
+        <div className="user-joining-form wrapper flex-form-holder">
             <div className="form-wrapper">
                 <form onSubmit={handleSubmit(onSubmit)}>
                     {

@@ -8,7 +8,9 @@ module.exports = {
     MONGODB_URL: 'mongodb+srv://admin:admin@cluster0-4ptib.mongodb.net/MernChat?retryWrites=true&w=majority',
     // API Modules
     PARTICIPANT: 'participant',
+    MEETING: 'meeting',
 
     // API URL Segments
-    SAVE: 'save'
+    SAVE: 'save',
+    START: 'start'
 };
