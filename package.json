@@ -19,7 +19,7 @@
     "morgan": "~1.9.1",
     "prop-types": "^15.7.2",
     "query-string": "^6.12.1",
-    "react-hook-form": "^5.7.2"
+    "socket.io": "^2.3.0"
   },
   "devDependencies": {
     "concurrently": "^5.2.0",
