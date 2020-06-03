@@ -22,6 +22,7 @@ const createUser = async (request, response, next) => {
     const meetingId = request.meetingId;
     const detailsToSave = {
         name: body.userName,
+        currentStatus: body.currentStatus,
         meetingId
     };
     try {

@@ -1,18 +1,20 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import './ContactProfile.scss';
+import { getFirstTwoLetters } from '../../Utils/Utils';
 
 const ContactProfile = props => {
     const {
         name,
-        img,
+        currentStatus,
         socialMedia
     } = props;
+    const firstLetter = getFirstTwoLetters(name);
 
     return (
         <div className={`contact-profile message-box`}>
-            <div className="user-info">
-                <img src={img} alt={name} />
+            <div className="user-info d-flex justify-content-center align-items-center">
+                <div className={`first-letters d-flex justify-content-center align-items-center ${currentStatus}`}>{firstLetter}</div>
                 <span>{name}</span>
             </div>
             {
@@ -31,9 +33,7 @@ const ContactProfile = props => {
 
 ContactProfile.propTypes = {
     name: PropTypes.string.isRequired,
-    img: PropTypes.string.isRequired,
-    socialMedia: PropTypes.bool,
-    lastMessage: PropTypes.bool,
+    socialMedia: PropTypes.bool
 }
 
 export default ContactProfile;

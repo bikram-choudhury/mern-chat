@@ -6,7 +6,7 @@ module.exports = {
         return new Promise((resolve, reject) => {
             (async () => {
                 try {
-                    const users = USER.find(query, { name: 1, meetingId: 1 });
+                    const users = USER.find(query, { name: 1, meetingId: 1, currentStatus: 1 });
                     resolve(users);
                 } catch (error) {
                     reject(error);

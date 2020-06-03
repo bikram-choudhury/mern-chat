@@ -24,6 +24,18 @@ body {
         text-overflow: ellipsis;
         overflow: hidden;
     }
+    .d-flex {
+        display: flex;
+    }
+    .justify-content-center {
+        justify-content: center;
+    }
+    .align-items-center {
+        align-items: center
+    }
+    .disabled {
+        pointer-events: none;
+    }
 
     button,
     input[type="submit"],

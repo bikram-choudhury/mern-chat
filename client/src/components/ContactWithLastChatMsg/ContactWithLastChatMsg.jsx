@@ -1,6 +1,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import './ContactWithLastChatMsg.scss';
+import { getFirstTwoLetters } from '../../Utils/Utils';
 
 const ContactWithLastChatMsg = props => {
 
@@ -9,21 +10,19 @@ const ContactWithLastChatMsg = props => {
         name,
         recentMsg,
         currentStatus,
-        img,
         lastMsgBy,
-        hostedBy
+        hostedBy: hostId,
+        currentUserId
     } = props;
+    const firstLetters = getFirstTwoLetters(name);
 
-    const currentUserId = '001';
-    const hostId = hostedBy || '1';
-    const participantName = name + '-' +
-        `${userId === hostId ? ' ( Host ) ' : ''}` +
+    const participantName = name + `${userId === hostId ? ' ( Host ) ' : ''}` +
         `${userId === currentUserId ? ' ( Me ) ' : ''}`;
     return (
         <div className="contact-with-recent-chat wrap">
             <div className="user-img">
                 <span className={`contact-status ${currentStatus}`}></span>
-                <img src={img} alt={name} />
+                <div className="first-letters">{firstLetters}</div>
             </div>
             <div className="meta">
                 <p className="name m-0">
@@ -44,11 +43,11 @@ const ContactWithLastChatMsg = props => {
 ContactWithLastChatMsg.propTypes = {
     _id: PropTypes.string.isRequired,
     name: PropTypes.string.isRequired,
-    img: PropTypes.string.isRequired,
     recentMsg: PropTypes.string,
     currentStatus: PropTypes.string,
-    lastMsgBy: PropTypes.string.isRequired,
-    hostedBy: PropTypes.string,
+    lastMsgBy: PropTypes.string,
+    hostedBy: PropTypes.string.isRequired,
+    currentUserId: PropTypes.string.isRequired,
 }
 
 export default ContactWithLastChatMsg;

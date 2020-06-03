@@ -11,3 +11,5 @@ export const meetingReducer = (state = initialState, { type, payload }) => {
         default: return state;
     }
 };
+
+export const getHostId = (state) => state.hostId;

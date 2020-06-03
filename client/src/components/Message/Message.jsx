@@ -21,11 +21,7 @@ Message.propTypes = {
     sender: PropTypes.shape({
         _id: PropTypes.string,
         name: PropTypes.string,
-        img: PropTypes.string,
-        lastMsgBy: PropTypes.string,
-        recentMsg: PropTypes.string,
         currentStatus: PropTypes.string,
-        isActive: PropTypes.bool
     }),
     msg: PropTypes.string
 }

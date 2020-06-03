@@ -17,8 +17,12 @@
             margin: 20px 15px;
             display: flex;
 
-            img {
-                width: 50px;
+            .profile-img {
+                width: 40px;
+                height: 40px;
+                display: flex;
+                justify-content: center;
+                align-items: center;
                 border-radius: 50%;
                 padding: 3px;
                 border: 2px solid #e74c3c;
@@ -239,8 +243,9 @@
             #profile {
                 margin: 15px 0 0 0;
                 justify-content: center;
-                img {
+                .profile-img {
                     width: 40px;
+                    height: 40px;
                 }
                 p.user-name {
                     display: none;
@@ -263,8 +268,9 @@
         #sidepanel {
             width: 70px;
             #profile {
-                img {
+                .profile-img {
                     width: 35px;
+                    height: 35px;
                 }
             }
         }

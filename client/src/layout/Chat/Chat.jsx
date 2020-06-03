@@ -10,22 +10,26 @@ import { setParticipantAsActive } from '../../redux/actions/participants.action'
 import {
     getActiveParticipant,
     getActiveParticipantMessage,
+    getHostId,
     getLoggedInUser,
-    getParticipants
+    getParticipantsWithLastMsg
 } from '../../redux/reducers';
 import './Chat.scss';
+import { getFirstTwoLetters } from '../../Utils/Utils';
 
 const ChatLayout = props => {
     const {
         loggedInUser,
         participants,
         activeParticipant,
+        hostedBy,
         showMessages,
         messages,
         sendMessage
     } = props;
     const [profileStatusVisibility, toggleProfileStatusVisibility] = useState(false);
     const [messageInput, updateMessageInput] = useState('');
+    const firstLettersForCurrentUser = getFirstTwoLetters(loggedInUser.name);
 
     const handleSendMsg = () => {
         const msgToSend = {
@@ -49,15 +53,11 @@ const ChatLayout = props => {
             <div id="sidepanel">
                 <div id="profile">
                     <div className="profile-with-status">
-                        <img
-                            id="profile-img"
-                            src={loggedInUser.img}
-                            className={loggedInUser.currentStatus}
-                            alt={loggedInUser.name}
+                        <div className={`profile-img ${loggedInUser.currentStatus}`}
                             onClick={
                                 () => toggleProfileStatusVisibility(!profileStatusVisibility)
                             }
-                        />
+                        >{firstLettersForCurrentUser}</div>
                         <ProfileStatus
                             isActive={profileStatusVisibility}
                             currentStatus={loggedInUser.currentStatus}
@@ -74,11 +74,17 @@ const ChatLayout = props => {
                         {
                             participants.map(participant => {
                                 return (
-                                    <li className={`contact ${participant.isActive ? 'active' : ''}`}
+                                    <li className={
+                                        `contact ${participant.isActive ? 'active' : ''} ${participant._id === loggedInUser._id ? 'disabled' : ''}`
+                                    }
                                         key={participant._id}
                                         onClick={() => showMessages(participant._id)}
                                     >
-                                        <ContactWithLastChatMsg {...participant} />
+                                        <ContactWithLastChatMsg
+                                            {...participant}
+                                            hostedBy={hostedBy}
+                                            currentUserId={loggedInUser._id}
+                                        />
                                     </li>
                                 )
                             })
@@ -91,7 +97,7 @@ const ChatLayout = props => {
                     activeParticipant ? (
                         <ContactProfile
                             name={activeParticipant.name}
-                            img={activeParticipant.img}
+                            currentStatus={activeParticipant.currentStatus}
                             socialMedia={true}
                         />
                     ) : null
@@ -135,14 +141,12 @@ ChatLayout.propTypes = {
     loggedInUser: PropTypes.shape({
         _id: PropTypes.string,
         name: PropTypes.string,
-        img: PropTypes.string,
         currentStatus: PropTypes.string
     }),
     participants: PropTypes.arrayOf(
         PropTypes.shape({
             _id: PropTypes.string,
             name: PropTypes.string,
-            img: PropTypes.string,
             lastMsgBy: PropTypes.string,
             recentMsg: PropTypes.string,
             currentStatus: PropTypes.string,
@@ -152,11 +156,7 @@ ChatLayout.propTypes = {
     activeParticipant: PropTypes.shape({
         _id: PropTypes.string,
         name: PropTypes.string,
-        img: PropTypes.string,
-        lastMsgBy: PropTypes.string,
-        recentMsg: PropTypes.string,
-        currentStatus: PropTypes.string,
-        isActive: PropTypes.bool
+        currentStatus: PropTypes.string
     }),
     showMessages: PropTypes.func,
     messages: PropTypes.arrayOf(
@@ -165,20 +165,10 @@ ChatLayout.propTypes = {
             sender: PropTypes.shape({
                 _id: PropTypes.string,
                 name: PropTypes.string,
-                img: PropTypes.string,
-                lastMsgBy: PropTypes.string,
-                recentMsg: PropTypes.string,
-                currentStatus: PropTypes.string,
-                isActive: PropTypes.bool
             }),
             recipient: PropTypes.shape({
                 _id: PropTypes.string,
                 name: PropTypes.string,
-                img: PropTypes.string,
-                lastMsgBy: PropTypes.string,
-                recentMsg: PropTypes.string,
-                currentStatus: PropTypes.string,
-                isActive: PropTypes.bool
             }),
             msgType: PropTypes.string,
             msg: PropTypes.string
@@ -189,10 +179,11 @@ ChatLayout.propTypes = {
 
 const mapStateToProps = state => {
     return {
-        participants: getParticipants(state),
+        participants: getParticipantsWithLastMsg(state),
         loggedInUser: getLoggedInUser(state),
         activeParticipant: getActiveParticipant(state),
-        messages: getActiveParticipantMessage(state)
+        messages: getActiveParticipantMessage(state),
+        hostedBy: getHostId(state)
     }
 };
 
