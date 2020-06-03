@@ -10,19 +10,19 @@ import { setParticipantAsActive } from '../../redux/actions/participants.action'
 import {
     getActiveParticipant,
     getActiveParticipantMessage,
-    getHostId,
     getLoggedInUser,
-    getParticipantsWithLastMsg
+    getParticipantsWithLastMsg,
+    getMeetingDetails
 } from '../../redux/reducers';
 import './Chat.scss';
-import { getFirstTwoLetters } from '../../Utils/Utils';
+import { getFirstTwoLetters, copyToClipboard } from '../../Utils/Utils';
 
 const ChatLayout = props => {
     const {
         loggedInUser,
         participants,
         activeParticipant,
-        hostedBy,
+        meeting,
         showMessages,
         messages,
         sendMessage
@@ -30,6 +30,9 @@ const ChatLayout = props => {
     const [profileStatusVisibility, toggleProfileStatusVisibility] = useState(false);
     const [messageInput, updateMessageInput] = useState('');
     const firstLettersForCurrentUser = getFirstTwoLetters(loggedInUser.name);
+
+    const { protocol, host } = window.location;
+    const inviteUrl = `${protocol}//${host}/join?meetingId=${meeting._id}`;
 
     const handleSendMsg = () => {
         const msgToSend = {
@@ -65,6 +68,18 @@ const ChatLayout = props => {
                     </div>
                     <p className="user-name">{loggedInUser.name}</p>
                 </div>
+                {
+                    meeting.hostId === loggedInUser._id ? (
+                        <div id="metting-invitation" onClick={() => copyToClipboard(inviteUrl)}>
+                            <span>Copy metting invitation</span>
+                            <i
+                                className="fa fa-clipboard"
+                                aria-hidden="true"
+                            ></i>
+                        </div>
+                    ) : null
+                }
+
                 <div id="search">
                     <label htmlFor=""><i className="fa fa-search" aria-hidden="true"></i></label>
                     <input type="text" placeholder="Search participants..." />
@@ -82,7 +97,7 @@ const ChatLayout = props => {
                                     >
                                         <ContactWithLastChatMsg
                                             {...participant}
-                                            hostedBy={hostedBy}
+                                            hostedBy={meeting.hostId}
                                             currentUserId={loggedInUser._id}
                                         />
                                     </li>
@@ -174,7 +189,12 @@ ChatLayout.propTypes = {
             msg: PropTypes.string
         })
     ),
-    sendMessage: PropTypes.func
+    sendMessage: PropTypes.func,
+    meeting: PropTypes.shape({
+        _id: PropTypes.string.isRequired,
+        name: PropTypes.string.isRequired,
+        hostId: PropTypes.string.isRequired
+    })
 }
 
 const mapStateToProps = state => {
@@ -183,7 +203,7 @@ const mapStateToProps = state => {
         loggedInUser: getLoggedInUser(state),
         activeParticipant: getActiveParticipant(state),
         messages: getActiveParticipantMessage(state),
-        hostedBy: getHostId(state)
+        meeting: getMeetingDetails(state)
     }
 };
 

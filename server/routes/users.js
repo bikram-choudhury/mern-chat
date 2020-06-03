@@ -5,6 +5,7 @@ const ObjectId = mongoose.Types.ObjectId;
 const USER = require('../schema/users');
 const Utils = require('../utils');
 const controller = require('../controllers/user.controller');
+const meetingController = require('../controllers/meeting.controller');
 
 /* GET users listing. */
 router.get('/', (req, res, next) => {
@@ -59,10 +60,12 @@ async function prepareAndSendUserJoingResponse(request, response) {
   try {
     const user = request.participant;
     const tokens = await controller.getLoggedInTokens(user);
+    const meetingInfo = await meetingController.getMeetingDetailsById(user.meetingId);
     const allParticipants = await USER.find({ meetingId: user.meetingId });
     response.json({
       tokens,
-      participants: allParticipants
+      participants: allParticipants,
+      meetingInfo
     });
   } catch (error) {
     response.status(500).json({ error });

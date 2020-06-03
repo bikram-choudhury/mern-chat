@@ -10,7 +10,7 @@ const ContactProfile = props => {
         socialMedia
     } = props;
     const firstLetter = getFirstTwoLetters(name);
-
+    
     return (
         <div className={`contact-profile message-box`}>
             <div className="user-info d-flex justify-content-center align-items-center">
@@ -33,7 +33,8 @@ const ContactProfile = props => {
 
 ContactProfile.propTypes = {
     name: PropTypes.string.isRequired,
-    socialMedia: PropTypes.bool
+    currentStatus: PropTypes.string.isRequired,
+    socialMedia: PropTypes.bool,
 }
 
 export default ContactProfile;

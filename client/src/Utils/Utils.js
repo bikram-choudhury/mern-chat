@@ -10,3 +10,8 @@ export const getFirstTwoLetters = (string) => {
     }
     return firstLetters;
 }
+
+export const copyToClipboard = (textToCopy) => {
+    // working in chrome
+    navigator.clipboard.writeText(textToCopy);
+}

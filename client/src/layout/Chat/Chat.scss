@@ -14,7 +14,7 @@
         overflow: hidden;
 
         #profile {
-            margin: 20px 15px;
+            margin: 20px 15px 0 15px;
             display: flex;
 
             .profile-img {
@@ -48,6 +48,17 @@
             p.user-name {
                 margin-left: 15px;
                 line-height: 1.8;
+            }
+        }
+
+        #metting-invitation {
+            font-size: 14px;
+            text-align: right;
+            margin-bottom: 10px;
+            cursor: pointer;
+
+            i {
+                margin: 0 10px;
             }
         }
 
