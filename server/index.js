@@ -84,7 +84,12 @@ sio.on('connection', socket => {
         const { participants, error } = participantManager.addParticipant(participant);
         if (error) callback(error);
 
-        socket.broadcast.to(participant.meetingId).emit('message', { msg: `${participant.name} has joined` });
+        socket.broadcast.to(participant.meetingId).emit('message', {
+            id: Math.random().toString(),
+            msg: `${participant.name} has joined`,
+            recipientId: participant.meetingId,
+            msgType: 'notification'
+        });
         socket.join(participant.meetingId);
 
         callback(null, [{ name: meetingName, id: participant.meetingId, type: 'meeting' }, ...participants]);

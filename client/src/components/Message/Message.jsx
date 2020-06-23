@@ -1,16 +1,22 @@
-import React, { Fragment } from 'react';
 import PropTypes from 'prop-types';
+import React, { Fragment } from 'react';
+import { getFirstTwoLetters } from '../../Utils/Utils';
 import './Message.scss';
 
 const Message = props => {
 
     const { sender, msg } = props;
-
+    const firstLetters = getFirstTwoLetters(sender.name);
+    
     return (
         <Fragment>
-            <div className="user-img">
-                <img src={sender.img} alt={sender.name} />
-            </div>
+            {
+                firstLetters ? (
+                    <div className="user-img">
+                        <div className="first-letters">{firstLetters}</div>
+                    </div>
+                ) : null
+            }
             <p className="message">{msg}</p>
         </Fragment>
     );
@@ -19,9 +25,8 @@ const Message = props => {
 
 Message.propTypes = {
     sender: PropTypes.shape({
-        _id: PropTypes.string,
-        name: PropTypes.string,
-        currentStatus: PropTypes.string,
+        id: PropTypes.string,
+        name: PropTypes.string
     }),
     msg: PropTypes.string
 }

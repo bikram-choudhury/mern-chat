@@ -52,40 +52,24 @@ export const getParticipantsWithLastMsg = createSelector(
         })
         return participantsWithLastMsg;
     }
-)
+);
 
 export const getActiveParticipantMessage = createSelector(
     getMessages,
-    getParticipants,
     getActiveParticipant,
-    getLoggedInUser,
-    (messages, participacts, activeParticipant, loggedInUser) => {
+    (allMessages, activeParticipant) => {
         const participantMsgs = [];
-        if (!activeParticipant) {
-            for (const message of messages) {
-                if (
-                    (message.senderId === activeParticipant._id && message.recipientId === loggedInUser._id) ||
-                    (message.senderId === loggedInUser._id && message.recipientId === activeParticipant._id)
-                ) {
-                    const senderInfo = participacts.find(user => user._id === message.senderId);
-                    const recipientInfo = participacts.find(user => user._id === message.recipientId);
-                    const newMsgObj = {
-                        msgId: message._id,
-                        sender: {
-                            _id: senderInfo._id,
-                            name: senderInfo.name
-                        } || loggedInUser,
-                        recipient: {
-                            _id: recipientInfo._id,
-                            name: recipientInfo.name
-                        } || loggedInUser,
-                        msgType: message.msgType,
-                        msg: message.msg
-                    };
-                    participantMsgs.push(newMsgObj);
-                }
-            }
+
+        if (activeParticipant) {
+            const allMsgWithActiveParticipant = allMessages.filter(
+                message => (
+                    message.senderId === activeParticipant.id ||
+                    message.recipientId === activeParticipant.id
+                )
+            );
+            participantMsgs.push(...allMsgWithActiveParticipant);
         }
+        
         return participantMsgs;
     }
 );

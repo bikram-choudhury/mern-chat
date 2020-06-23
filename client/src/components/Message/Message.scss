@@ -1,9 +1,14 @@
 .content .messages ul li {
     .user-img {
-        img {
+        .first-letters {
             width: 22px;
+            height: 22px;
             border-radius: 50%;
             margin-top: 9px;
+            border: 1px solid;
+            display: flex;
+            justify-content: center;
+            align-items: center;
         }
     }
     p {

@@ -10,11 +10,13 @@ import { setParticipantAsActive } from '../../redux/actions/participants.action'
 import {
     getActiveParticipant,
     getMeetingDetails,
-    getParticipants
+    getParticipants,
+    getActiveParticipantMessage
 } from '../../redux/reducers';
 import client from '../../socket';
 import { copyToClipboard, getFirstTwoLetters } from '../../Utils/Utils';
 import './Chat.scss';
+import { Fragment } from 'react';
 
 const ChatLayout = props => {
     const {
@@ -22,26 +24,32 @@ const ChatLayout = props => {
         activeParticipant,
         meeting,
         selectParticipant,
-        sendMessage
+        sendMessage,
+        saveMessage,
+        messages
     } = props;
     const [profileStatusVisibility, toggleProfileStatusVisibility] = useState(false);
     const [messageInput, updateMessageInput] = useState('');
     const [loggedInUser, setLoggedInUser] = useState({});
     const [firstLettersForCurrentUser, setFirstLettersForCurrentUser] = useState('');
-    const messages = [];
 
     useEffect(() => {
         const currentUser = participants.find(user => user.id === client.socketId);
         setLoggedInUser(currentUser);
-
-        return () => {
-            client._disconnect()
-        }
     }, [participants]);
 
     useEffect(() => {
         setFirstLettersForCurrentUser(getFirstTwoLetters(loggedInUser.name));
-    }, [loggedInUser])
+    }, [loggedInUser]);
+
+    useEffect(() => {
+        client._onMsgReceived(
+            message => saveMessage([message])
+        );
+        return () => {
+            client._disconnect()
+        }
+    }, [saveMessage]);
 
     const { protocol, host } = window.location;
     const inviteUrl = `${protocol}//${host}/join?meetingId=${meeting.id}`;
@@ -52,7 +60,7 @@ const ChatLayout = props => {
             recipientId: activeParticipant.id,
             msgType: 'sent',
             msg: messageInput,
-            _id: Math.random().toString()
+            id: Math.random().toString()
         };
         sendMessage([msgToSend]);
         updateMessageInput('');
@@ -121,42 +129,49 @@ const ChatLayout = props => {
             <div className="content">
                 {
                     activeParticipant ? (
-                        <ContactProfile
-                            name={activeParticipant.name}
-                            currentStatus={activeParticipant.currentStatus}
-                            socialMedia={true}
-                        />
+                        <Fragment>
+                            <ContactProfile
+                                name={activeParticipant.name}
+                                currentStatus={activeParticipant.currentStatus}
+                                socialMedia={true}
+                            />
+                            <div className="messages">
+                                <ul>
+                                    {
+                                        messages.map(message => {
+                                            let sender = {};
+                                            if (message.msgType === 'sent') {
+                                                sender = participants.find(user => user.id === message.senderId);
+                                            } else if (message.msgType === 'replies') {
+                                                sender = participants.find(user => user.id === message.recipientId);
+                                            }
+                                            return (
+                                                <li className={message.msgType} key={message.id}>
+                                                    <Message msg={message.msg} sender={sender} />
+                                                </li>
+                                            )
+                                        })
+                                    }
+                                </ul>
+                            </div>
+                            <div className="message-input">
+                                <div className="wrap">
+                                    <input
+                                        type="text"
+                                        placeholder="Write your message..."
+                                        value={messageInput}
+                                        onChange={({ target: { value } }) => updateMessageInput(value)}
+                                        onKeyUp={handleKeyUpForMsgInput}
+                                    />
+                                    <i className="fa fa-paperclip attachment" aria-hidden="true"></i>
+                                    <button className="button" onClick={() => handleSendMsg()}>
+                                        <i className="fa fa-paper-plane" aria-hidden="true"></i>
+                                    </button>
+                                </div>
+                            </div>
+                        </Fragment>
                     ) : null
                 }
-
-                <div className="messages">
-                    <ul>
-                        {
-                            messages.map(message => {
-                                return (
-                                    <li className={message.msgType} key={message.msgId}>
-                                        <Message {...message} />
-                                    </li>
-                                )
-                            })
-                        }
-                    </ul>
-                </div>
-                <div className="message-input">
-                    <div className="wrap">
-                        <input
-                            type="text"
-                            placeholder="Write your message..."
-                            value={messageInput}
-                            onChange={({ target: { value } }) => updateMessageInput(value)}
-                            onKeyUp={handleKeyUpForMsgInput}
-                        />
-                        <i className="fa fa-paperclip attachment" aria-hidden="true"></i>
-                        <button className="button" onClick={() => handleSendMsg()}>
-                            <i className="fa fa-paper-plane" aria-hidden="true"></i>
-                        </button>
-                    </div>
-                </div>
             </div>
 
         </div>
@@ -192,13 +207,15 @@ const mapStateToProps = state => {
     return {
         participants: getParticipants(state),
         activeParticipant: getActiveParticipant(state),
-        meeting: getMeetingDetails(state)
+        meeting: getMeetingDetails(state),
+        messages: getActiveParticipantMessage(state)
     }
 };
 
 const mapDispatchToProps = dispatch => {
     return {
         selectParticipant: (participantId) => dispatch(setParticipantAsActive(participantId)),
+        saveMessage: (message) => dispatch(saveMessage(message)),
         sendMessage: (msgToSend) => dispatch(saveMessage(msgToSend))
     }
 }
