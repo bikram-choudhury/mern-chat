@@ -6,7 +6,7 @@ import { useFocus } from '../../hooks/useFocus';
 import { statusList } from '../../MockData/_profile-status';
 import { saveMeetingDetails } from '../../redux/actions/meeting.action';
 import { replaceParticipants } from '../../redux/actions/participants.action';
-import ClientSocket from '../../socket';
+import client from '../../socket';
 import { createParticipantObjFromResponse } from '../../Utils/Utils';
 import './UserJoiningForm.scss';
 
@@ -20,8 +20,6 @@ const UserJoiningForm = props => {
     const [mtIdInputRef, setMtIdInputFocus] = useFocus();
     const [userInputRef, setUserInputFocus] = useFocus();
 
-    const client = new ClientSocket();
-
     useEffect(() => {
         if (meetingId) {
             setUserInputFocus();
@@ -33,7 +31,7 @@ const UserJoiningForm = props => {
     useEffect(() => {
         client._connect();
         return () => client._disconnect()
-    }, [client]);
+    }, []);
 
     const { register, handleSubmit } = useForm({
         defaultValues: { meetingId }
@@ -50,6 +48,7 @@ const UserJoiningForm = props => {
             const meetingDetails = allParticipant[0];
             props.saveMeetingDetails(meetingDetails);
             props.replaceParticipants(createParticipantObjFromResponse(allParticipant));
+            props.history.push('chat');
         });
     }
     return (

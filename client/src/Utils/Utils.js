@@ -1,4 +1,4 @@
-export const getFirstTwoLetters = (string) => {
+export const getFirstTwoLetters = (string = '') => {
     let firstLetters = "";
     const splitString = string.split(" ");
     const count = splitString.length > 2 ? 2 : splitString.length;

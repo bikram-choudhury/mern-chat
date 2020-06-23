@@ -4,20 +4,19 @@ import { connect } from 'react-redux';
 import { statusList } from '../../MockData/_profile-status';
 import { saveMeetingDetails } from '../../redux/actions/meeting.action';
 import { replaceParticipants } from '../../redux/actions/participants.action';
-import ClientSocket from '../../socket';
+import client from '../../socket';
 import './StartMeetingForm.scss';
 import { createParticipantObjFromResponse } from '../../Utils/Utils';
 
 const StartMeetingForm = props => {
     const { register, handleSubmit } = useForm();
 
-    const client = new ClientSocket();
     useEffect(() => {
         client._connect();
         return () => {
             client._disconnect();
         }
-    }, [client]);
+    }, []);
 
     const onSubmit = data => {
         const userData = {
@@ -31,6 +30,7 @@ const StartMeetingForm = props => {
             const meetingDetails = allParticipant[0];
             props.saveMeetingDetails(meetingDetails);
             props.replaceParticipants(createParticipantObjFromResponse(allParticipant));
+            props.history.push('chat');
         });
     };
     return (

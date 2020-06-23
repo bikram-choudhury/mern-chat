@@ -17,7 +17,7 @@ export const participantsReducer = (state = initialState, { type, payload }) => 
             };
         case SET_PARTICIPANT_ACTIVE:
             const participants = state.list.map(user => {
-                if (user._id === payload.participantId) {
+                if (user.id === payload.participantId) {
                     user.isActive = true;
                 } else {
                     user.isActive = false;

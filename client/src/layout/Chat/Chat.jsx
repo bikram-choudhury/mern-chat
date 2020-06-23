@@ -1,5 +1,5 @@
 import PropTypes from 'prop-types';
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { connect } from 'react-redux';
 import ContactProfile from '../../components/ContactProfile/ContactProfile';
 import ContactWithLastChatMsg from '../../components/ContactWithLastChatMsg/ContactWithLastChatMsg';
@@ -9,35 +9,47 @@ import { saveMessage } from '../../redux/actions/message.actions';
 import { setParticipantAsActive } from '../../redux/actions/participants.action';
 import {
     getActiveParticipant,
-    getActiveParticipantMessage,
-    getLoggedInUser,
-    getParticipantsWithLastMsg,
-    getMeetingDetails
+    getMeetingDetails,
+    getParticipants
 } from '../../redux/reducers';
+import client from '../../socket';
+import { copyToClipboard, getFirstTwoLetters } from '../../Utils/Utils';
 import './Chat.scss';
-import { getFirstTwoLetters, copyToClipboard } from '../../Utils/Utils';
 
 const ChatLayout = props => {
     const {
-        loggedInUser,
         participants,
         activeParticipant,
         meeting,
-        showMessages,
-        messages,
+        selectParticipant,
         sendMessage
     } = props;
     const [profileStatusVisibility, toggleProfileStatusVisibility] = useState(false);
     const [messageInput, updateMessageInput] = useState('');
-    const firstLettersForCurrentUser = getFirstTwoLetters(loggedInUser.name);
+    const [loggedInUser, setLoggedInUser] = useState({});
+    const [firstLettersForCurrentUser, setFirstLettersForCurrentUser] = useState('');
+    const messages = [];
+
+    useEffect(() => {
+        const currentUser = participants.find(user => user.id === client.socketId);
+        setLoggedInUser(currentUser);
+
+        return () => {
+            client._disconnect()
+        }
+    }, [participants]);
+
+    useEffect(() => {
+        setFirstLettersForCurrentUser(getFirstTwoLetters(loggedInUser.name));
+    }, [loggedInUser])
 
     const { protocol, host } = window.location;
-    const inviteUrl = `${protocol}//${host}/join?meetingId=${meeting._id}`;
+    const inviteUrl = `${protocol}//${host}/join?meetingId=${meeting.id}`;
 
     const handleSendMsg = () => {
         const msgToSend = {
-            senderId: loggedInUser._id,
-            recipientId: activeParticipant._id,
+            senderId: loggedInUser.id,
+            recipientId: activeParticipant.id,
             msgType: 'sent',
             msg: messageInput,
             _id: Math.random().toString()
@@ -49,9 +61,9 @@ const ChatLayout = props => {
         if (event.key === 'Enter' || event.keyCode === 13) {
             handleSendMsg();
         }
-    }
+    };
 
-    return (
+    return Object.keys(loggedInUser).length ? (
         <div id="frame">
             <div id="sidepanel">
                 <div id="profile">
@@ -69,7 +81,7 @@ const ChatLayout = props => {
                     <p className="user-name">{loggedInUser.name}</p>
                 </div>
                 {
-                    meeting.hostId === loggedInUser._id ? (
+                    loggedInUser.host ? (
                         <div id="metting-invitation" onClick={() => copyToClipboard(inviteUrl)}>
                             <span>Copy metting invitation</span>
                             <i
@@ -90,15 +102,14 @@ const ChatLayout = props => {
                             participants.map(participant => {
                                 return (
                                     <li className={
-                                        `contact ${participant.isActive ? 'active' : ''} ${participant._id === loggedInUser._id ? 'disabled' : ''}`
+                                        `contact ${participant.isActive ? 'active' : ''} ${participant.id === loggedInUser.id ? 'disabled' : ''}`
                                     }
-                                        key={participant._id}
-                                        onClick={() => showMessages(participant._id)}
+                                        key={participant.id}
+                                        onClick={() => selectParticipant(participant.id)}
                                     >
                                         <ContactWithLastChatMsg
                                             {...participant}
-                                            hostedBy={meeting.hostId}
-                                            currentUserId={loggedInUser._id}
+                                            currentUserId={loggedInUser.id}
                                         />
                                     </li>
                                 )
@@ -149,19 +160,15 @@ const ChatLayout = props => {
             </div>
 
         </div>
-    );
+    ) : null;
 };
 
 ChatLayout.propTypes = {
-    loggedInUser: PropTypes.shape({
-        _id: PropTypes.string,
-        name: PropTypes.string,
-        currentStatus: PropTypes.string
-    }),
     participants: PropTypes.arrayOf(
         PropTypes.shape({
-            _id: PropTypes.string,
+            id: PropTypes.string,
             name: PropTypes.string,
+            host: PropTypes.bool,
             lastMsgBy: PropTypes.string,
             recentMsg: PropTypes.string,
             currentStatus: PropTypes.string,
@@ -169,47 +176,29 @@ ChatLayout.propTypes = {
         })
     ),
     activeParticipant: PropTypes.shape({
-        _id: PropTypes.string,
+        id: PropTypes.string,
         name: PropTypes.string,
         currentStatus: PropTypes.string
     }),
-    showMessages: PropTypes.func,
-    messages: PropTypes.arrayOf(
-        PropTypes.shape({
-            msgId: PropTypes.string,
-            sender: PropTypes.shape({
-                _id: PropTypes.string,
-                name: PropTypes.string,
-            }),
-            recipient: PropTypes.shape({
-                _id: PropTypes.string,
-                name: PropTypes.string,
-            }),
-            msgType: PropTypes.string,
-            msg: PropTypes.string
-        })
-    ),
+    selectParticipant: PropTypes.func,
     sendMessage: PropTypes.func,
     meeting: PropTypes.shape({
-        _id: PropTypes.string.isRequired,
-        name: PropTypes.string.isRequired,
-        hostId: PropTypes.string.isRequired
+        id: PropTypes.string.isRequired,
+        name: PropTypes.string.isRequired
     })
 }
 
 const mapStateToProps = state => {
     return {
-        participants: getParticipantsWithLastMsg(state),
-        loggedInUser: getLoggedInUser(state),
+        participants: getParticipants(state),
         activeParticipant: getActiveParticipant(state),
-        messages: getActiveParticipantMessage(state),
         meeting: getMeetingDetails(state)
     }
 };
 
 const mapDispatchToProps = dispatch => {
     return {
-        showMessages: (participantId) => dispatch(setParticipantAsActive(participantId)),
+        selectParticipant: (participantId) => dispatch(setParticipantAsActive(participantId)),
         sendMessage: (msgToSend) => dispatch(saveMessage(msgToSend))
     }
 }

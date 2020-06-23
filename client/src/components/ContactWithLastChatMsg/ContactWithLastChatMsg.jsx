@@ -6,17 +6,17 @@ import { getFirstTwoLetters } from '../../Utils/Utils';
 const ContactWithLastChatMsg = props => {
 
     const {
-        _id: userId,
+        id: userId,
         name,
         recentMsg,
         currentStatus,
         lastMsgBy,
-        hostedBy: hostId,
+        host,
         currentUserId
     } = props;
     const firstLetters = getFirstTwoLetters(name);
 
-    const participantName = name + `${userId === hostId ? ' ( Host ) ' : ''}` +
+    const participantName = name + `${host ? ' ( Host ) ' : ''}` +
         `${userId === currentUserId ? ' ( Me ) ' : ''}`;
     return (
         <div className="contact-with-recent-chat wrap">
@@ -41,13 +41,13 @@ const ContactWithLastChatMsg = props => {
 }
 
 ContactWithLastChatMsg.propTypes = {
-    _id: PropTypes.string.isRequired,
+    id: PropTypes.string.isRequired,
     name: PropTypes.string.isRequired,
     recentMsg: PropTypes.string,
     currentStatus: PropTypes.string,
     lastMsgBy: PropTypes.string,
-    hostedBy: PropTypes.string.isRequired,
-    currentUserId: PropTypes.string.isRequired,
+    host: PropTypes.bool,
+    currentUserId: PropTypes.string.isRequired
 }
 
 export default ContactWithLastChatMsg;
