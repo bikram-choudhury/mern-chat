@@ -7,6 +7,7 @@ export const LOGOUT = 'LOGOUT';
 
 // Participants
 export const ADD_PARTICIPANT = 'ADD_PARTICIPANT';
+export const REPLACE_PARTICIPANTS = 'REPLACE_PARTICIPANTS';
 export const SET_PARTICIPANT_ACTIVE = 'SET_PARTICIPANT_ACTIVE';
 
 // Messages

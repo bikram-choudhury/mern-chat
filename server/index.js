@@ -3,6 +3,8 @@ const path = require('path');
 const cookieParser = require('cookie-parser');
 const logger = require('morgan');
 const http = require('http');
+const socketIo = require('socket.io');
+
 const settings = require('../client/src/settings');
 const PORT = process.env.port || settings.PORT;
 
@@ -41,6 +43,59 @@ app.use((err, req, res, next) => {
 });
 
 const server = http.createServer(app);
+const sio = socketIo(server);
+const participantManager = require('./socketHandlers/participants');
+const meetingRoom = require('./socketHandlers/meeting-room');
+
+sio.on('connection', socket => {
+    console.log('client connected...', socket.id);
+
+    socket.on('start-meeting', (userData, callback) => {
+        const date = new Date();
+        const meetingName = userData.meetingName || `Anonymous-${date.getTime()}`;
+        const { meetingId, error } = meetingRoom.setMeetingName(meetingName);
+        if (!error) {
+            const participant = {
+                id: socket.id,
+                status: userData.currentStatus,
+                host: userData.isHost,
+                name: userData.userName,
+                meetingId
+            };
+            const { participants, error } = participantManager.addParticipant(participant);
+            if (error) callback(error);
+
+            socket.join(meetingId);
+            callback(null, [{ name: meetingName, id: meetingId, type: 'meeting' }, ...participants]);
+        } else {
+            callback(error);
+        }
+    });
+
+    socket.on('join-meeting', (userData, callback) => {
+        const participant = {
+            id: socket.id,
+            status: userData.currentStatus,
+            name: userData.name,
+            meetingId: userData.meetingId
+        };
+        const meetingName = meetingRoom.getMeetingName(participant.meetingId);
+        
+        const { participants, error } = participantManager.addParticipant(participant);
+        if (error) callback(error);
+
+        socket.broadcast.to(participant.meetingId).emit('message', { msg: `${participant.name} has joined` });
+        socket.join(participant.meetingId);
+
+        callback(null, [{ name: meetingName, id: participant.meetingId, type: 'meeting' }, ...participants]);
+    });
+
+    socket.on('disconnect', () => {
+        console.log('client disconnect...', socket.id);
+    });
+});
+
+
 server.listen(PORT, () => {
     console.log(`Server Running at ${PORT}`);
 })

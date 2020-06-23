@@ -1,4 +1,4 @@
-import { ADD_PARTICIPANT, SET_PARTICIPANT_ACTIVE } from "../action.constant";
+import { ADD_PARTICIPANT, SET_PARTICIPANT_ACTIVE, REPLACE_PARTICIPANTS } from "../action.constant";
 
 const initialState = {
     list: [],
@@ -8,12 +8,12 @@ const initialState = {
 export const participantsReducer = (state = initialState, { type, payload }) => {
     switch (type) {
         case ADD_PARTICIPANT:
-            payload = payload.map(participant => {
-                participant.isActive = false;
-                return participant;
-            });
             return {
                 list: [...state.list, ...payload], error: null
+            };
+        case REPLACE_PARTICIPANTS:
+            return {
+                list: [...payload], error: null
             };
         case SET_PARTICIPANT_ACTIVE:
             const participants = state.list.map(user => {

@@ -1,24 +1,26 @@
+import queryString from 'query-string';
 import React, { Fragment, useEffect } from 'react';
 import { useForm } from 'react-hook-form';
-import queryString from 'query-string';
-import './UserJoiningForm.scss';
-import { saveParticipant } from '../../redux/actions/participants.action';
 import { connect } from 'react-redux';
-import { getParticipants } from '../../redux/reducers/';
 import { useFocus } from '../../hooks/useFocus';
-import { statusList} from '../../MockData/_profile-status';
+import { statusList } from '../../MockData/_profile-status';
+import { saveMeetingDetails } from '../../redux/actions/meeting.action';
+import { replaceParticipants } from '../../redux/actions/participants.action';
+import ClientSocket from '../../socket';
+import { createParticipantObjFromResponse } from '../../Utils/Utils';
+import './UserJoiningForm.scss';
 
 const UserJoiningForm = props => {
     const {
         location: { search },
-        saveUserToJoinMeeting,
-        history,
     } = props;
     const parsedQueryParams = queryString.parse(search);
     const meetingId = parsedQueryParams.meetingId;
 
     const [mtIdInputRef, setMtIdInputFocus] = useFocus();
     const [userInputRef, setUserInputFocus] = useFocus();
+
+    const client = new ClientSocket();
 
     useEffect(() => {
         if (meetingId) {
@@ -28,15 +30,27 @@ const UserJoiningForm = props => {
         }
     }, [meetingId, setUserInputFocus, setMtIdInputFocus]);
 
+    useEffect(() => {
+        client._connect();
+        return () => client._disconnect()
+    }, [client]);
+
     const { register, handleSubmit } = useForm({
         defaultValues: { meetingId }
     });
     const onSubmit = data => {
-        saveUserToJoinMeeting({
+        const userData = {
             meetingId: data.meetingId || meetingId,
             name: data.userName,
             currentStatus: statusList[0].value
-        }, { history });
+        };
+
+        client._joinMeetingRoom(userData, (err, allParticipant) => {
+            if (err) console.error(err);
+            const meetingDetails = allParticipant[0];
+            props.saveMeetingDetails(meetingDetails);
+            props.replaceParticipants(createParticipantObjFromResponse(allParticipant));
+        });
     }
     return (
         <div className="user-joining-form wrapper flex-form-holder">
@@ -89,13 +103,7 @@ const UserJoiningForm = props => {
     );
 }
 
-const mapStateToProps = state => {
-    return {
-        allParticipants: getParticipants(state)
-    }
-}
-
 const mapDispatchToProps = {
-    saveUserToJoinMeeting: saveParticipant
+    saveMeetingDetails, replaceParticipants
 }
-export default connect(mapStateToProps, mapDispatchToProps)(UserJoiningForm);
+export default connect(null, mapDispatchToProps)(UserJoiningForm);

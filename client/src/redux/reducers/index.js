@@ -19,7 +19,6 @@ export const reducers = (state, action) => {
 };
 
 export const getMeetingDetails = state => state.meeting;
-export const getHostId = state => meeting.getHostId(state.meeting);
 
 export const getAccessToken = state => auth.getAccessToken(state.authentication);
 export const getLoggedInUser = state => auth.getLoggedInUser(state.authentication);

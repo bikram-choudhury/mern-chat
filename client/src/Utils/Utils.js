@@ -9,9 +9,23 @@ export const getFirstTwoLetters = (string) => {
         }
     }
     return firstLetters;
-}
+};
 
 export const copyToClipboard = (textToCopy) => {
     // working in chrome
     navigator.clipboard.writeText(textToCopy);
-}
+};
+
+export const createParticipantObjFromResponse = participants => {
+    return participants.map(participant => {
+        return {
+            id: participant.id,
+            name: participant.name,
+            host: participant.host,
+            lastMsgBy: participant.lastMsgBy || '',
+            recentMsg: participant.recentMsg || '',
+            currentStatus: participant.status,
+            isActive: !!participant.isActive
+        }
+    });
+};

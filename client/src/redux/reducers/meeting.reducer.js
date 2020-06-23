@@ -1,7 +1,7 @@
 import { SAVE_MEETING_DETAILS } from "../action.constant";
 
 const initialState = {
-    _id: '', name: '', hostId: '',
+    id: '', name: ''
 };
 
 export const meetingReducer = (state = initialState, { type, payload }) => {
@@ -11,5 +11,3 @@ export const meetingReducer = (state = initialState, { type, payload }) => {
         default: return state;
     }
 };
-
-export const getHostId = (state) => state.hostId;

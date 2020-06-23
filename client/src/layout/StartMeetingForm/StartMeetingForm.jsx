@@ -1,19 +1,38 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import { connect } from 'react-redux';
 import { statusList } from '../../MockData/_profile-status';
-import { startMeeting } from '../../redux/actions/meeting.action';
+import { saveMeetingDetails } from '../../redux/actions/meeting.action';
+import { replaceParticipants } from '../../redux/actions/participants.action';
+import ClientSocket from '../../socket';
 import './StartMeetingForm.scss';
+import { createParticipantObjFromResponse } from '../../Utils/Utils';
 
 const StartMeetingForm = props => {
-    const { history, saveUserToStartnMeeting } = props;
     const { register, handleSubmit } = useForm();
+
+    const client = new ClientSocket();
+    useEffect(() => {
+        client._connect();
+        return () => {
+            client._disconnect();
+        }
+    }, [client]);
+
     const onSubmit = data => {
-        saveUserToStartnMeeting({
+        const userData = {
             ...data,
-            currentStatus: statusList[0].value
-        }, { history });
-    }
+            currentStatus: statusList[0].value,
+            isHost: true
+        };
+        client._startMeetingRoom(userData, (err, allParticipant) => {
+            if (err) console.error(err);
+            
+            const meetingDetails = allParticipant[0];
+            props.saveMeetingDetails(meetingDetails);
+            props.replaceParticipants(createParticipantObjFromResponse(allParticipant));
+        });
+    };
     return (
         <div className="start-meeting-form wrapper flex-form-holder">
             <div className="form-wrapper">
@@ -53,6 +72,6 @@ const StartMeetingForm = props => {
 }
 
 const mapDispatchToProps = {
-    saveUserToStartnMeeting: startMeeting
+    saveMeetingDetails, replaceParticipants
 }
 export default connect(null, mapDispatchToProps)(StartMeetingForm);
