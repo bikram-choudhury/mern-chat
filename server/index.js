@@ -92,16 +92,17 @@ sio.on('connection', socket => {
     });
 
     socket.on('send-message', (msgToSend, callback) => {
+        const msgId = Math.random().toString();
         socket.to(msgToSend.recipientId).emit('message', {
             message: {
-                id: Math.random().toString(),
+                id: msgId,
                 msg: msgToSend.msg,
                 senderId: msgToSend.senderId,
                 recipientId: msgToSend.recipientId,
                 msgType: 'replies'
             }
         });
-        callback();
+        callback(null, { msgId });
     });
 
     socket.on('disconnect', () => {

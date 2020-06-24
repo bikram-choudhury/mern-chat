@@ -29,3 +29,10 @@ export const createParticipantObjFromResponse = participants => {
         }
     });
 };
+
+export const getValueFromStorage = (key) => {
+    const storageStr = sessionStorage.getItem('state');
+    if (!storageStr) return {};
+    const storage = JSON.parse(storageStr);
+    return storage[key];
+}

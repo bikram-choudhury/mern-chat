@@ -42,6 +42,20 @@ const ChatLayout = props => {
     const [loggedInUser, setLoggedInUser] = useState({});
     const [firstLettersForCurrentUser, setFirstLettersForCurrentUser] = useState('');
 
+
+    useEffect(() => {
+        const handler = function (e) {
+            var confirmationMessage = "Are you sure on this action? This may lead to loose all your data";
+
+            (e || window.event).returnValue = confirmationMessage; //Gecko + IE
+            return confirmationMessage; //Webkit, Safari, Chrome
+        };
+        window.addEventListener("beforeunload", handler, false);
+        return () => {
+            window.removeEventListener('beforeunload', handler, false);
+        }
+    })
+
     useEffect(() => {
         const currentUser = participants.find(user => user.id === client.socketId);
         setLoggedInUser(currentUser);
@@ -80,12 +94,13 @@ const ChatLayout = props => {
             recipientId: activeParticipant.id,
             meetingId: meeting.id
         };
-        client._sendMessage(msgToSend, (error) => {
+        client._sendMessage(msgToSend, (error, { msgId }) => {
             if (error) console.log(error);
 
             saveMessage([{
                 ...msgToSend,
-                msgType: 'sent'
+                msgType: 'sent',
+                id: msgId
             }]);
             updateMessageInput('');
         });

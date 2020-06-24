@@ -4,7 +4,9 @@ const ClientSocket = {
     socket: null,
     socketId: null,
     _connect: function () {
-        this.socket = connect('http://localhost:5000');
+        this.socket = connect('http://localhost:5000', {
+            reconnection: true
+        });
         this.socket.on('connect', () => {
             this.socketId = this.socket.id;
         });

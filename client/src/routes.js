@@ -6,11 +6,14 @@ const Chat = React.lazy(() => import('./layout/Chat/Chat'));
 
 export const routes = [{
     path: '/start-meeting',
-    component: StartMeetingForm
+    component: StartMeetingForm,
+    protected: false
 }, {
     path: '/join',
-    component: UserJoiningForm
+    component: UserJoiningForm,
+    protected: false
 }, {
     path: '/chat',
-    component: Chat
+    component: Chat,
+    protected: true
 }];
