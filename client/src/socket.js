@@ -15,6 +15,9 @@ const ClientSocket = {
     _joinMeetingRoom: function (userData, callback) {
         this.socket.emit('join-meeting', userData, callback);
     },
+    _sendMessage: function (msgToSend, callback) {
+        this.socket.emit('send-message', msgToSend, callback);
+    },
     _onMsgReceived: function (onMsgReceived) {
         this.socket.on('message', onMsgReceived);
     },

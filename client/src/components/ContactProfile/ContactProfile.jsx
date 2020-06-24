@@ -34,7 +34,7 @@ const ContactProfile = props => {
 ContactProfile.propTypes = {
     name: PropTypes.string.isRequired,
     currentStatus: PropTypes.string.isRequired,
-    socialMedia: PropTypes.bool,
+    socialMedia: PropTypes.bool.isRequired
 }
 
 export default ContactProfile;

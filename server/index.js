@@ -80,19 +80,35 @@ sio.on('connection', socket => {
             meetingId: userData.meetingId
         };
         const meetingName = meetingRoom.getMeetingName(participant.meetingId);
-        
+
         const { participants, error } = participantManager.addParticipant(participant);
         if (error) callback(error);
 
         socket.broadcast.to(participant.meetingId).emit('message', {
-            id: Math.random().toString(),
-            msg: `${participant.name} has joined`,
-            recipientId: participant.meetingId,
-            msgType: 'notification'
+            message: {
+                id: Math.random().toString(),
+                msg: `${participant.name} has joined`,
+                recipientId: participant.meetingId,
+                msgType: 'notification'
+            },
+            participant
         });
         socket.join(participant.meetingId);
 
         callback(null, [{ name: meetingName, id: participant.meetingId, type: 'meeting' }, ...participants]);
+    });
+
+    socket.on('send-message', (msgToSend, callback) => {
+        socket.to(msgToSend.recipientId).emit('message', {
+            message: {
+                id: Math.random().toString(),
+                msg: msgToSend.msg,
+                senderId: msgToSend.senderId,
+                recipientId: msgToSend.recipientId,
+                msgType: 'replies'
+            }
+        });
+        callback();
     });
 
     socket.on('disconnect', () => {

@@ -6,7 +6,10 @@ import ContactWithLastChatMsg from '../../components/ContactWithLastChatMsg/Cont
 import Message from '../../components/Message/Message';
 import ProfileStatus from '../../components/ProfileStatus/ProfileStatus';
 import { saveMessage } from '../../redux/actions/message.actions';
-import { setParticipantAsActive } from '../../redux/actions/participants.action';
+import {
+    setParticipantAsActive,
+    addParticipant
+} from '../../redux/actions/participants.action';
 import {
     getActiveParticipant,
     getMeetingDetails,
@@ -14,7 +17,11 @@ import {
     getActiveParticipantMessage
 } from '../../redux/reducers';
 import client from '../../socket';
-import { copyToClipboard, getFirstTwoLetters } from '../../Utils/Utils';
+import {
+    copyToClipboard,
+    getFirstTwoLetters,
+    createParticipantObjFromResponse
+} from '../../Utils/Utils';
 import './Chat.scss';
 import { Fragment } from 'react';
 
@@ -22,9 +29,9 @@ const ChatLayout = props => {
     const {
         participants,
         activeParticipant,
+        addParticipant,
         meeting,
         selectParticipant,
-        sendMessage,
         saveMessage,
         messages
     } = props;
@@ -44,26 +51,39 @@ const ChatLayout = props => {
 
     useEffect(() => {
         client._onMsgReceived(
-            message => saveMessage([message])
+            ({ message, participant }) => {
+                saveMessage([message]);
+                if (participant) {
+                    addParticipant(
+                        createParticipantObjFromResponse([participant])
+                    );
+                }
+            }
         );
         return () => {
-            client._disconnect()
+            client._disconnect();
         }
-    }, [saveMessage]);
+    }, [saveMessage, addParticipant]);
 
     const { protocol, host } = window.location;
     const inviteUrl = `${protocol}//${host}/join?meetingId=${meeting.id}`;
 
     const handleSendMsg = () => {
         const msgToSend = {
+            msg: messageInput,
             senderId: loggedInUser.id,
             recipientId: activeParticipant.id,
-            msgType: 'sent',
-            msg: messageInput,
-            id: Math.random().toString()
+            meetingId: meeting.id
         };
-        sendMessage([msgToSend]);
-        updateMessageInput('');
+        client._sendMessage(msgToSend, (error) => {
+            if (error) console.log(error);
+
+            saveMessage([{
+                ...msgToSend,
+                msgType: 'sent'
+            }]);
+            updateMessageInput('');
+        });
     };
     const handleKeyUpForMsgInput = (event) => {
         if (event.key === 'Enter' || event.keyCode === 13) {
@@ -139,12 +159,9 @@ const ChatLayout = props => {
                                 <ul>
                                     {
                                         messages.map(message => {
-                                            let sender = {};
-                                            if (message.msgType === 'sent') {
-                                                sender = participants.find(user => user.id === message.senderId);
-                                            } else if (message.msgType === 'replies') {
-                                                sender = participants.find(user => user.id === message.recipientId);
-                                            }
+                                            const sender = participants.find(
+                                                user => user.id === message.senderId
+                                            ) || {};
                                             return (
                                                 <li className={message.msgType} key={message.id}>
                                                     <Message msg={message.msg} sender={sender} />
@@ -196,7 +213,7 @@ ChatLayout.propTypes = {
         currentStatus: PropTypes.string
     }),
     selectParticipant: PropTypes.func,
-    sendMessage: PropTypes.func,
+    saveMessage: PropTypes.func,
     meeting: PropTypes.shape({
         id: PropTypes.string.isRequired,
         name: PropTypes.string.isRequired
@@ -216,7 +233,7 @@ const mapDispatchToProps = dispatch => {
     return {
         selectParticipant: (participantId) => dispatch(setParticipantAsActive(participantId)),
         saveMessage: (message) => dispatch(saveMessage(message)),
-        sendMessage: (msgToSend) => dispatch(saveMessage(msgToSend))
+        addParticipant: (participant) => dispatch(addParticipant(participant))
     }
 }
 

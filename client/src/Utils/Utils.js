@@ -24,7 +24,7 @@ export const createParticipantObjFromResponse = participants => {
             host: participant.host,
             lastMsgBy: participant.lastMsgBy || '',
             recentMsg: participant.recentMsg || '',
-            currentStatus: participant.status,
+            currentStatus: participant.status || '',
             isActive: !!participant.isActive
         }
     });
