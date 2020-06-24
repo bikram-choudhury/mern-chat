@@ -1,4 +1,9 @@
-import { ADD_PARTICIPANT, SET_PARTICIPANT_ACTIVE, REPLACE_PARTICIPANTS } from "../action.constant";
+import {
+    ADD_PARTICIPANT,
+    SET_PARTICIPANT_ACTIVE,
+    REPLACE_PARTICIPANTS,
+    REMOVE_PARTICIPANT
+} from "../action.constant";
 
 export const addParticipant = (user) => {
     return {
@@ -20,3 +25,10 @@ export const setParticipantAsActive = (participantId) => {
         payload: { participantId }
     }
 };
+
+export const removeParticipant = participantId => {
+    return {
+        type: REMOVE_PARTICIPANT,
+        payload: { participantId }
+    }
+}

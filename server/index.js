@@ -8,13 +8,6 @@ const socketIo = require('socket.io');
 const settings = require('../client/src/settings');
 const PORT = process.env.port || settings.PORT;
 
-const mongoose = require('mongoose');
-mongoose.connect(settings.MONGODB_URL, err => {
-    if (err) throw new Error(err);
-    console.log("Connected successfully");
-});
-
-
 const API = require('./routes/api');
 const app = express();
 
@@ -113,6 +106,18 @@ sio.on('connection', socket => {
 
     socket.on('disconnect', () => {
         console.log('client disconnect...', socket.id);
+        const participant = participantManager.removeParticipant(socket.id);
+        if (participant) {
+            socket.broadcast.to(participant.meetingId).emit('message', {
+                participantId: socket.id,
+                message: {
+                    id: Math.random().toString(),
+                    msg: `${participant.name} has left`,
+                    recipientId: participant.meetingId,
+                    msgType: 'notification'
+                },
+            })
+        }
     });
 });
 

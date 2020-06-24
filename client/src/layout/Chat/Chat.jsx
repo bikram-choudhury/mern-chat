@@ -8,7 +8,8 @@ import ProfileStatus from '../../components/ProfileStatus/ProfileStatus';
 import { saveMessage } from '../../redux/actions/message.actions';
 import {
     setParticipantAsActive,
-    addParticipant
+    addParticipant,
+    removeParticipant
 } from '../../redux/actions/participants.action';
 import {
     getActiveParticipant,
@@ -30,6 +31,7 @@ const ChatLayout = props => {
         participants,
         activeParticipant,
         addParticipant,
+        removeParticipant,
         meeting,
         selectParticipant,
         saveMessage,
@@ -51,19 +53,22 @@ const ChatLayout = props => {
 
     useEffect(() => {
         client._onMsgReceived(
-            ({ message, participant }) => {
+            ({ message, participant, participantId }) => {
                 saveMessage([message]);
                 if (participant) {
                     addParticipant(
                         createParticipantObjFromResponse([participant])
                     );
+                } else if (participantId) {
+                    removeParticipant(participantId);
                 }
             }
         );
         return () => {
+            client._offMsgReceived();
             client._disconnect();
         }
-    }, [saveMessage, addParticipant]);
+    }, [saveMessage, addParticipant, removeParticipant]);
 
     const { protocol, host } = window.location;
     const inviteUrl = `${protocol}//${host}/join?meetingId=${meeting.id}`;
@@ -233,7 +238,8 @@ const mapDispatchToProps = dispatch => {
     return {
         selectParticipant: (participantId) => dispatch(setParticipantAsActive(participantId)),
         saveMessage: (message) => dispatch(saveMessage(message)),
-        addParticipant: (participant) => dispatch(addParticipant(participant))
+        addParticipant: (participant) => dispatch(addParticipant(participant)),
+        removeParticipant: (participant) => dispatch(removeParticipant(participant))
     }
 }
 
