@@ -1,5 +1,6 @@
 import queryString from 'query-string';
 import React, { Fragment, useEffect } from 'react';
+import { Link } from 'react-router-dom';
 import { useForm } from 'react-hook-form';
 import { connect } from 'react-redux';
 import { useFocus } from '../../hooks/useFocus';
@@ -92,7 +93,10 @@ const UserJoiningForm = props => {
                         />
                     </div>
                     <div className="form-group">
-                        <div className="text-align-right">
+                        <div className="justify-content-space-between">
+                            <Link to={`start-meeting`} className="btn btn-primary">
+                                Start a new meeting 
+                            </Link>
                             <button type="submit" className="btn btn-primary join-btn">Join Meeting</button>
                         </div>
                     </div>

@@ -23,8 +23,9 @@ import {
     getFirstTwoLetters,
     createParticipantObjFromResponse
 } from '../../Utils/Utils';
-import './Chat.scss';
 import { Fragment } from 'react';
+import ResizableTextarea from '../../components/Textarea/ResizableTextarea';
+import './Chat.scss';
 
 const ChatLayout = props => {
     const {
@@ -104,11 +105,6 @@ const ChatLayout = props => {
             }]);
             updateMessageInput('');
         });
-    };
-    const handleKeyUpForMsgInput = (event) => {
-        if (event.key === 'Enter' || event.keyCode === 13) {
-            handleSendMsg();
-        }
     };
 
     return Object.keys(loggedInUser).length ? (
@@ -190,15 +186,14 @@ const ChatLayout = props => {
                                         })
                                     }
                                 </ul>
+
                             </div>
                             <div className="message-input">
                                 <div className="wrap">
-                                    <input
-                                        type="text"
+                                    <ResizableTextarea
                                         placeholder="Write your message..."
                                         value={messageInput}
-                                        onChange={({ target: { value } }) => updateMessageInput(value)}
-                                        onKeyUp={handleKeyUpForMsgInput}
+                                        changed={updateMessageInput}
                                     />
                                     <i className="fa fa-paperclip attachment" aria-hidden="true"></i>
                                     <button className="button" onClick={() => handleSendMsg()}>
