@@ -1,0 +1,23 @@
+.emoji-picker {
+    position: absolute;
+    &.left {
+        left: 0;
+    }
+    &.right {
+        right: 0;
+    }
+    &.top {
+        bottom: 100%;
+    }
+    &.bottom {
+        top: 100%;
+    }
+    button {
+        cursor: pointer;
+        &.emoji-mart-emoji {
+            span {
+                cursor: pointer !important;
+            }
+        }
+    }
+}

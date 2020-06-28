@@ -26,6 +26,7 @@ import {
 import { Fragment } from 'react';
 import ResizableTextarea from '../../components/Textarea/ResizableTextarea';
 import './Chat.scss';
+import EmojiPicker from '../../components/EmojiPicker/EmojiPicker';
 
 const ChatLayout = props => {
     const {
@@ -55,7 +56,7 @@ const ChatLayout = props => {
         return () => {
             window.removeEventListener('beforeunload', handler, false);
         }
-    })
+    });
 
     useEffect(() => {
         const currentUser = participants.find(user => user.id === client.socketId);
@@ -190,13 +191,19 @@ const ChatLayout = props => {
                             </div>
                             <div className="message-input">
                                 <div className="wrap">
+                                    <EmojiPicker
+                                        position="top left"
+                                        selected={emoji => updateMessageInput(messageInput + emoji)}
+                                    />
                                     <ResizableTextarea
                                         placeholder="Write your message..."
                                         value={messageInput}
                                         changed={updateMessageInput}
                                     />
-                                    <i className="fa fa-paperclip attachment" aria-hidden="true"></i>
-                                    <button className="button" onClick={() => handleSendMsg()}>
+                                    <button className="btn btn-primary">
+                                        <i className="fa fa-paperclip attachment" aria-hidden="true"></i>
+                                    </button>
+                                    <button className="btn btn-primary" onClick={() => handleSendMsg()}>
                                         <i className="fa fa-paper-plane" aria-hidden="true"></i>
                                     </button>
                                 </div>

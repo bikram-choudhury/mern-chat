@@ -9,7 +9,7 @@ const ResizableTextarea = props => {
         changed
     } = props;
     let minRows = 1;
-    const maxRows = 5;
+    const maxRows = 3;
     const [rows, setRows] = useState(minRows);
 
     useEffect(() => {
