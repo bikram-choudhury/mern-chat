@@ -5,8 +5,7 @@ const logger = require('morgan');
 const http = require('http');
 const socketIo = require('socket.io');
 
-const settings = require('../client/src/settings');
-const PORT = process.env.port || settings.PORT;
+const PORT = process.env.PORT || 5000;
 
 const API = require('./routes/api');
 const app = express();
