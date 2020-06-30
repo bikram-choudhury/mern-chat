@@ -3,9 +3,9 @@
   "version": "0.0.0",
   "private": true,
   "scripts": {
-    "start": "node ./server/index.js",
-    "client": "npm run start --prefix client",
-    "server": "nodemon ./server/index.js",
+    "start": "node index.js",
+    "client": "npm run start --prefix ../client",
+    "server": "nodemon index.js",
     "dev": "concurrently \" npm run server\" \"npm run client\""
   },
   "dependencies": {
