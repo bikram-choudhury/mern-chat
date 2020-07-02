@@ -7,16 +7,18 @@ const socketIo = require('socket.io');
 
 const PORT = process.env.PORT || 5000;
 
-const API = require('./routes/api');
 const app = express();
 
 app.use(logger('dev'));
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
-app.use(express.static(path.join(__dirname, 'public')));
+app.use(express.static(path.join(__dirname, 'client-bundle', 'build')));
 
-app.use('/api', API);
+app.get('/*', (req, res) => {
+    const filePath = path.join(__dirname, 'client-bundle', 'build', 'index.html');
+    res.sendFile(filePath);
+});
 
 app.use((req, res, next) => {
     const error = new Error('Not Found');

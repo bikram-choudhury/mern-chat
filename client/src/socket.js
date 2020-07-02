@@ -1,10 +1,12 @@
 import { connect } from 'socket.io-client';
+// const SOCKET_URL = 'https://usein.herokuapp.com';
+const SOCKET_URL = window.location.origin;
 
 const ClientSocket = {
     socket: null,
     socketId: null,
     _connect: function () {
-        this.socket = connect('http://localhost:5000', {
+        this.socket = connect(SOCKET_URL, {
             reconnection: true
         });
         this.socket.on('connect', () => {
