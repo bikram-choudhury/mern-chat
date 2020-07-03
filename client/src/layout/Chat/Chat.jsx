@@ -1,5 +1,6 @@
 import PropTypes from 'prop-types';
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useCallback } from 'react';
+import { useHistory } from 'react-router-dom';
 import { connect } from 'react-redux';
 import ContactProfile from '../../components/ContactProfile/ContactProfile';
 import ContactWithLastChatMsg from '../../components/ContactWithLastChatMsg/ContactWithLastChatMsg';
@@ -44,6 +45,7 @@ const ChatLayout = props => {
     const [loggedInUser, setLoggedInUser] = useState({});
     const [firstLettersForCurrentUser, setFirstLettersForCurrentUser] = useState('');
 
+    const history = useHistory();
 
     useEffect(() => {
         const handler = function (e) {
@@ -85,6 +87,14 @@ const ChatLayout = props => {
             client._disconnect();
         }
     }, [saveMessage, addParticipant, removeParticipant]);
+
+    const momoizedDisconnected = useCallback(() => {
+        history.push('/logout');
+    }, [history]);
+
+    useEffect(() => {
+        client._onDisconnect(momoizedDisconnected);
+    }, [momoizedDisconnected]);
 
     const { protocol, host } = window.location;
     const inviteUrl = `${protocol}//${host}/join?meetingId=${meeting.id}`;
@@ -128,7 +138,7 @@ const ChatLayout = props => {
                 {
                     loggedInUser.host ? (
                         <div id="metting-invitation" onClick={() => copyToClipboard(inviteUrl)}>
-                            <span>Copy metting invitation</span>
+                            <span className="link">Copy <span>metting invitation</span> </span>
                             <i
                                 className="fa fa-clipboard"
                                 aria-hidden="true"

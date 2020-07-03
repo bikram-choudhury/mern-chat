@@ -25,6 +25,7 @@ const EmojiPicker = props => {
                     autoFocus={true}
                     showSkinTones={false}
                     set={'google'}
+                    style={{width: '100%'}}
                     i18n={{ categories: { search: ' ' } }}
                 />
             </div>

@@ -7,3 +7,12 @@
         }
     }
 }
+@media screen and (max-width: 420px) {
+    .start-meeting-form {
+        &.flex-form-holder {
+            .form-wrapper {
+                width: 75%;
+            }
+        }
+    }
+}

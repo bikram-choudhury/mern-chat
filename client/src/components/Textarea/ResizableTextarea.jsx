@@ -1,8 +1,9 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, createRef } from "react";
 import PropTypes from 'prop-types';
 import './ResizableTextarea.scss';
 
 const ResizableTextarea = props => {
+    const elRef = createRef();
     const {
         value,
         placeholder,
@@ -12,6 +13,9 @@ const ResizableTextarea = props => {
     const maxRows = 3;
     const [rows, setRows] = useState(minRows);
 
+    useEffect(() => {
+        elRef.current.focus();
+    }, [elRef]);
     useEffect(() => {
         if (!value) {
             setRows(minRows);
@@ -40,6 +44,7 @@ const ResizableTextarea = props => {
             onChange={handleChange}
             placeholder={placeholder}
             rows={rows}
+            ref={holder => elRef.current = holder}
         ></textarea>
     );
 }

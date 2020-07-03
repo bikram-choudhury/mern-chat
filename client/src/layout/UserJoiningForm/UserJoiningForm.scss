@@ -7,3 +7,13 @@
         }
     }
 }
+
+@media screen and (max-width: 420px) {
+    .user-joining-form {
+        &.flex-form-holder {
+            .form-wrapper {
+                width: 75%;
+            }
+        }
+    }
+}

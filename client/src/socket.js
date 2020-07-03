@@ -1,5 +1,5 @@
 import { connect } from 'socket.io-client';
-// const SOCKET_URL = 'https://usein.herokuapp.com';
+// const SOCKET_URL = 'http://localhost:5000';
 const SOCKET_URL = window.location.origin;
 
 const ClientSocket = {
@@ -24,6 +24,9 @@ const ClientSocket = {
     },
     _onMsgReceived: function (onMsgReceived) {
         this.socket.on('message', onMsgReceived);
+    },
+    _onDisconnect: function (onDisconnected) {
+        this.socket.on('disconnect', onDisconnected);
     },
     _offMsgReceived: function () {
         this.socket.off('message');

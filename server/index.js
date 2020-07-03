@@ -109,16 +109,30 @@ sio.on('connection', socket => {
     socket.on('disconnect', () => {
         console.log('client disconnect...', socket.id);
         const participant = participantManager.removeParticipant(socket.id);
+
         if (participant) {
-            socket.broadcast.to(participant.meetingId).emit('message', {
-                participantId: socket.id,
-                message: {
-                    id: Math.random().toString(),
-                    msg: `${participant.name} has left`,
-                    recipientId: participant.meetingId,
-                    msgType: 'notification'
-                },
-            })
+            if (participant.host) {
+                const allParticipants = participantManager.getAllParticipant(participant.meetingId);
+                if (allParticipants.length) {
+                    allParticipants.forEach(client => {
+                        const clientSocket = sio.of('/').in(client.meetingId).connected[client.id];
+                        clientSocket.leave(client.meetingId);
+                        clientSocket.disconnect(true);
+                    });
+                }
+            } else {
+                socket.broadcast.to(participant.meetingId).emit('message', {
+                    participantId: socket.id,
+                    message: {
+                        id: Math.random().toString(),
+                        msg: `${participant.name} has left`,
+                        recipientId: participant.meetingId,
+                        msgType: 'notification'
+                    }
+                });
+                socket.leave(participant.meetingId);
+                socket.disconnect(true);
+            }
         }
     });
 });

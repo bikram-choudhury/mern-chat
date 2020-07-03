@@ -44,6 +44,7 @@ const StartMeetingForm = props => {
                             name="userName"
                             id="userName"
                             placeholder="Enter your display name"
+                            autoComplete="false"
                             ref={register({ required: true })}
                         />
                     </div>
@@ -57,6 +58,7 @@ const StartMeetingForm = props => {
                             name="meetingName"
                             id="meetingName"
                             placeholder="Enter your meeting name"
+                            autoComplete="false"
                             ref={register()}
                         />
                     </div>
