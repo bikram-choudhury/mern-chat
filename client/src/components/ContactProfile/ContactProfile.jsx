@@ -13,9 +13,9 @@ const ContactProfile = props => {
     
     return (
         <div className={`contact-profile message-box`}>
-            <div className="user-info d-flex justify-content-center align-items-center">
+            <div className="user-info d-flex align-items-center">
                 <div className={`first-letters d-flex justify-content-center align-items-center ${currentStatus}`}>{firstLetter}</div>
-                <span>{name}</span>
+                <span className="ellipsis">{name}</span>
             </div>
             {
                 socialMedia ? (

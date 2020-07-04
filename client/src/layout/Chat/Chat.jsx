@@ -28,6 +28,8 @@ import { Fragment } from 'react';
 import ResizableTextarea from '../../components/Textarea/ResizableTextarea';
 import './Chat.scss';
 import EmojiPicker from '../../components/EmojiPicker/EmojiPicker';
+import FileUploader from '../../components/FileUploader/FileUploader';
+import FileViewer from '../../components/FileViewer/FileViewer';
 
 const ChatLayout = props => {
     const {
@@ -46,6 +48,10 @@ const ChatLayout = props => {
     const [firstLettersForCurrentUser, setFirstLettersForCurrentUser] = useState('');
 
     const history = useHistory();
+    const firstParticipant = participants[0];
+    useEffect(() => {
+        selectParticipant(firstParticipant.id);
+    }, [selectParticipant, firstParticipant.id]);
 
     useEffect(() => {
         const handler = function (e) {
@@ -107,16 +113,36 @@ const ChatLayout = props => {
             meetingId: meeting.id
         };
         client._sendMessage(msgToSend, (error, { msgId }) => {
-            if (error) console.log(error);
-
-            saveMessage([{
-                ...msgToSend,
-                msgType: 'sent',
-                id: msgId
-            }]);
-            updateMessageInput('');
+            handleSendMessageCallback(msgToSend, error, msgId);
         });
     };
+
+    const handleFileOnLoad = file => {
+        console.log("file: ", file);
+        const msgToSend = {
+            isFile: true,
+            fileName: file.name,
+            file: file,
+            senderId: loggedInUser.id,
+            recipientId: activeParticipant.id,
+            meetingId: meeting.id,
+        };
+        client._sendMessage(msgToSend, (error, { msgId }) => {
+            handleSendMessageCallback(msgToSend, error, msgId);
+        });
+    };
+    const handleSendMessageCallback = (msgToSend, error, msgId) => {
+        if (error) {
+            console.log(error);
+            return;
+        }
+        saveMessage([{
+            ...msgToSend,
+            msgType: 'sent',
+            id: msgId
+        }]);
+        updateMessageInput('');
+    }
 
     return Object.keys(loggedInUser).length ? (
         <div id="frame">
@@ -191,7 +217,14 @@ const ChatLayout = props => {
                                             ) || {};
                                             return (
                                                 <li className={message.msgType} key={message.id}>
-                                                    <Message msg={message.msg} sender={sender} />
+                                                    {
+                                                        message.isFile ? (
+                                                            <FileViewer file={message.file} name={message.fileName} />
+                                                        ) : (
+                                                                <Message msg={message.msg} sender={sender} />
+                                                            )
+                                                    }
+
                                                 </li>
                                             )
                                         })
@@ -210,9 +243,7 @@ const ChatLayout = props => {
                                         value={messageInput}
                                         changed={updateMessageInput}
                                     />
-                                    <button className="btn btn-primary">
-                                        <i className="fa fa-paperclip attachment" aria-hidden="true"></i>
-                                    </button>
+                                    <FileUploader handleOnLoad={handleFileOnLoad} />
                                     <button className="btn btn-primary" onClick={() => handleSendMsg()}>
                                         <i className="fa fa-paper-plane" aria-hidden="true"></i>
                                     </button>

@@ -22,6 +22,9 @@ body {
     .vs-hidden {
         visibility: hidden;
     }
+    .hidden {
+        display: none;
+    }
     .ellipsis {
         white-space: nowrap;
         text-overflow: ellipsis;

@@ -40,9 +40,11 @@ const server = http.createServer(app);
 const sio = socketIo(server);
 const participantManager = require('./socketHandlers/participants');
 const meetingRoom = require('./socketHandlers/meeting-room');
+const Handlers = require('./socketHandlers/handler');
 
 sio.on('connection', socket => {
     console.log('client connected...', socket.id);
+    const handler = Handlers(socket);
 
     socket.on('start-meeting', (userData, callback) => {
         const date = new Date();
@@ -92,49 +94,9 @@ sio.on('connection', socket => {
         callback(null, [{ name: meetingName, id: participant.meetingId, type: 'meeting' }, ...participants]);
     });
 
-    socket.on('send-message', (msgToSend, callback) => {
-        const msgId = Math.random().toString();
-        socket.to(msgToSend.recipientId).emit('message', {
-            message: {
-                id: msgId,
-                msg: msgToSend.msg,
-                senderId: msgToSend.senderId,
-                recipientId: msgToSend.recipientId,
-                msgType: 'replies'
-            }
-        });
-        callback(null, { msgId });
-    });
+    socket.on('send-message', handler.sendMessage);
 
-    socket.on('disconnect', () => {
-        console.log('client disconnect...', socket.id);
-        const participant = participantManager.removeParticipant(socket.id);
-
-        if (participant) {
-            if (participant.host) {
-                const allParticipants = participantManager.getAllParticipant(participant.meetingId);
-                if (allParticipants.length) {
-                    allParticipants.forEach(client => {
-                        const clientSocket = sio.of('/').in(client.meetingId).connected[client.id];
-                        clientSocket.leave(client.meetingId);
-                        clientSocket.disconnect(true);
-                    });
-                }
-            } else {
-                socket.broadcast.to(participant.meetingId).emit('message', {
-                    participantId: socket.id,
-                    message: {
-                        id: Math.random().toString(),
-                        msg: `${participant.name} has left`,
-                        recipientId: participant.meetingId,
-                        msgType: 'notification'
-                    }
-                });
-                socket.leave(participant.meetingId);
-                socket.disconnect(true);
-            }
-        }
-    });
+    socket.on('disconnect', handler.disconnect.bind(null, sio));
 });
 
 
