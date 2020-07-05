@@ -1,5 +1,6 @@
-import React, { Fragment } from 'react';
-import { decodeBase64FileUrl } from '../../Utils/Utils';
+import React from 'react';
+import PropTypes from 'prop-types';
+import { SERVER } from '../../settings';
 import './FileViewer.scss';
 
 function getCategoryFromType(fileType) {
@@ -13,8 +14,7 @@ function getCategoryFromType(fileType) {
 }
 
 const FileViewer = props => {
-    const { file, name } = props;
-    const { type, blobFile } = decodeBase64FileUrl(file);
+    const { name, type, path } = props;
     const category = getCategoryFromType(type);
     return (
         <div className="preview-container">
@@ -22,20 +22,26 @@ const FileViewer = props => {
                 {
                     'image': (
                         <img
-                            src={file}
+                            src={`${SERVER}/${path}`}
                             alt={name}
                             className="file"
                         />
                     ),
                     'video': (
                         <video controls className="file">
-                            <source src={blobFile} type={type} />
+                            <source src={`${SERVER}/${path}`} type={type} />
                         </video>
                     )
                 }[category]
             }
         </div>
     );
+}
+
+FileViewer.propTypes = {
+    name: PropTypes.string,
+    type: PropTypes.string,
+    path: PropTypes.string
 }
 
 export default FileViewer;

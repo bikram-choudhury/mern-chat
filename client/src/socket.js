@@ -1,6 +1,5 @@
 import { connect } from 'socket.io-client';
-// const SOCKET_URL = 'http://localhost:5000';
-const SOCKET_URL = window.location.origin;
+import { SERVER as SOCKET_URL } from './settings';
 
 const ClientSocket = {
     socket: null,

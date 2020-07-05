@@ -1,5 +1,4 @@
 import React, { createRef, Fragment, useState } from 'react';
-import { encodeImageToBase64 } from '../../Utils/Utils';
 
 const FileUploader = props => {
     const { handleOnLoad } = props;
@@ -14,12 +13,7 @@ const FileUploader = props => {
                 preview: URL.createObjectURL(file),
                 raw: file
             });
-            encodeImageToBase64(file)
-                .then(base64File => {
-                    handleOnLoad(base64File);
-                    inputRef.current.reset();
-                })
-                .catch(error => console.log("encodeImageToBase64 error:", error));
+            handleOnLoad(file);
         }
     };
 

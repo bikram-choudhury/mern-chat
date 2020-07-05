@@ -1,9 +1,15 @@
+const path = require('path');
+const fs = require('fs');
+
 const participantManager = require('./participants');
-const participants = require('./participants');
 
 function Handlers(clientSocket) {
     const socket = clientSocket;
 
+    function removeMeetingContent(meetingId) {
+        const targetFolder = path.join(__dirname, '../uploads', meetingId);
+        fs.rmdirSync(targetFolder, { recursive: true });
+    }
     function endMeetingForAll(sio, participant) {
         const allParticipants = participantManager.getAllParticipant(participant.meetingId);
         if (allParticipants.length) {
@@ -40,7 +46,7 @@ function Handlers(clientSocket) {
     const sendMessage = (msgToSend, callback) => {
         const message = createMsgToSend(msgToSend);
         socket.to(msgToSend.recipientId).emit('message', { message });
-        
+
         callback(null, { msgId: message.id });
     };
     const disconnect = (sio) => {
@@ -49,6 +55,7 @@ function Handlers(clientSocket) {
 
         if (participant) {
             if (participant.host) {
+                removeMeetingContent(participant.meetingId);
                 endMeetingForAll(sio, participant);
             } else {
                 sendMessageToAll(participant);

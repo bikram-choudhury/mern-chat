@@ -2,6 +2,7 @@ import PropTypes from 'prop-types';
 import React, { useEffect, useState, useCallback } from 'react';
 import { useHistory } from 'react-router-dom';
 import { connect } from 'react-redux';
+import Axios from 'axios';
 import ContactProfile from '../../components/ContactProfile/ContactProfile';
 import ContactWithLastChatMsg from '../../components/ContactWithLastChatMsg/ContactWithLastChatMsg';
 import Message from '../../components/Message/Message';
@@ -30,6 +31,7 @@ import './Chat.scss';
 import EmojiPicker from '../../components/EmojiPicker/EmojiPicker';
 import FileUploader from '../../components/FileUploader/FileUploader';
 import FileViewer from '../../components/FileViewer/FileViewer';
+import { SERVER } from '../../settings';
 
 const ChatLayout = props => {
     const {
@@ -117,19 +119,35 @@ const ChatLayout = props => {
         });
     };
 
-    const handleFileOnLoad = file => {
-        console.log("file: ", file);
-        const msgToSend = {
-            isFile: true,
-            fileName: file.name,
-            file: file,
-            senderId: loggedInUser.id,
-            recipientId: activeParticipant.id,
-            meetingId: meeting.id,
-        };
-        client._sendMessage(msgToSend, (error, { msgId }) => {
-            handleSendMessageCallback(msgToSend, error, msgId);
+    const uploadFile = (file, meetingId) => {
+        return new Promise((resolve, reject) => {
+            const formData = new FormData();
+            formData.append('file', file);
+
+            const config = {
+                header: { 'content-type': 'multipart/form-data' }
+            }
+            Axios.post(`${SERVER}/api/uploadFiles/${meetingId}`, formData, config)
+                .then(({ data }) => resolve(data.filePath))
+                .catch(error => reject(error));
         });
+    }
+    const handleFileOnLoad = file => {
+        uploadFile(file, meeting.id)
+            .then(filePath => {
+                const msgToSend = {
+                    isFile: true,
+                    name: file.name,
+                    type: file.type,
+                    path: filePath,
+                    senderId: loggedInUser.id,
+                    recipientId: activeParticipant.id,
+                    meetingId: meeting.id,
+                };
+                client._sendMessage(msgToSend, (error, { msgId }) => {
+                    handleSendMessageCallback(msgToSend, error, msgId);
+                });
+            }).catch(error => console.error(error));
     };
     const handleSendMessageCallback = (msgToSend, error, msgId) => {
         if (error) {
@@ -219,7 +237,11 @@ const ChatLayout = props => {
                                                 <li className={message.msgType} key={message.id}>
                                                     {
                                                         message.isFile ? (
-                                                            <FileViewer file={message.file} name={message.fileName} />
+                                                            <FileViewer
+                                                                name={message.name}
+                                                                type={message.type}
+                                                                path={message.path}
+                                                            />
                                                         ) : (
                                                                 <Message msg={message.msg} sender={sender} />
                                                             )
