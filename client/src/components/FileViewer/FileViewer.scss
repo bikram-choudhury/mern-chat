@@ -4,5 +4,15 @@
 
     .file {
         width: 100%;
+        cursor: pointer;
+    }
+
+    &.others {
+        display: flex;
+        align-items: center;
+        height: 30px;
+        border: 1px solid #d9d9d9;
+        padding: 5px 10px;
+        border-radius: 5px;
     }
 }

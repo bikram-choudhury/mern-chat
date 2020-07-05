@@ -241,6 +241,7 @@ const ChatLayout = props => {
                                                                 name={message.name}
                                                                 type={message.type}
                                                                 path={message.path}
+                                                                sender={sender}
                                                             />
                                                         ) : (
                                                                 <Message msg={message.msg} sender={sender} />

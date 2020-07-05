@@ -33,4 +33,11 @@ router.post('/uploadFiles/:meetingId', upload, (request, response) => {
     })
 });
 
+router.get('/download', (req, res) => {
+    let filePath = req.query.filePath;
+    filePath = decodeURIComponent(filePath);
+    const targetFile = `${__dirname}/../uploads/${filePath}`;
+    res.download(targetFile);
+});
+
 module.exports = router;
