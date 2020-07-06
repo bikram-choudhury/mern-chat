@@ -1,8 +1,9 @@
 import React, { Fragment } from 'react';
+import Axios from 'axios';
 import PropTypes from 'prop-types';
 import { SERVER } from '../../settings';
 import './FileViewer.scss';
-import { getFirstTwoLetters } from '../../Utils/Utils';
+import { getFirstTwoLetters, getFileExtension } from '../../Utils/Utils';
 
 function getCategoryFromType(fileType) {
     if (/image/ig.test(fileType)) {
@@ -19,12 +20,18 @@ const FileViewer = props => {
     const firstLetters = getFirstTwoLetters(sender.name);
     const category = getCategoryFromType(type);
 
-    /* const downloadFile = filePath => {
-        const api = `${SERVER}/api/download?filePath=${encodeURIComponent(filePath)}`;
-        const anchor = document.createElement('a');
-        anchor.href = api;
-        anchor.click();
-    } */
+    const downloadFile = filePath => {
+        Axios.get(`${SERVER}/api/download?filePath=${encodeURIComponent(filePath)}`, { responseType: 'blob' })
+            .then((response) => {
+                const url = window.URL.createObjectURL(new Blob([response.data]));
+                const link = document.createElement('a');
+                link.href = url;
+                link.setAttribute('download', name);
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+            }).catch(error => console.error(error));
+    }
     return (
         <Fragment>
             {
@@ -50,8 +57,13 @@ const FileViewer = props => {
                             </video>
                         ),
                         'others': (
-                            <div className="file" onClick={() => downloadFile(path)}>
-                                <span>{name}</span>
+                            <div className="file ellipsis"
+                                onClick={() => downloadFile(path)}
+                                title={name}
+                            >
+                                <span className="name">
+                                    [ {getFileExtension(name)} ] {name}
+                                </span>
                             </div>
                         )
                     }[category]
