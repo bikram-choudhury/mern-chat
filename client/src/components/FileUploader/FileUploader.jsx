@@ -1,19 +1,32 @@
-import React, { createRef, Fragment, useState } from 'react';
+import React, { createRef, Fragment } from 'react';
+import PropTypes from 'prop-types';
+import Axios from 'axios';
+import { SERVER } from '../../settings';
 
 const FileUploader = props => {
-    const { handleOnLoad } = props;
+    const { handleOnLoad, meetingId } = props;
     const inputRef = createRef();
-    const [file, setFile] = useState({ preview: '', raw: '', type: '' });
 
     const handleChange = event => {
         event.preventDefault();
         if (event.target.files && event.target.files.length) {
             const file = event.target.files[0];
-            setFile({
-                preview: URL.createObjectURL(file),
-                raw: file
-            });
-            handleOnLoad(file);
+            // preview: URL.createObjectURL(file),
+            const formData = new FormData();
+            formData.append('file', file);
+
+            const config = {
+                header: { 'content-type': 'multipart/form-data' }
+            }
+            Axios.post(`${SERVER}/api/uploadFiles/${meetingId}`, formData, config)
+                .then(({ data }) => {
+                    handleOnLoad({
+                        name: file.name,
+                        type: file.type,
+                        path: data.filePath
+                    })
+                })
+                .catch(error => console.error(error));
         }
     };
 
@@ -35,6 +48,10 @@ const FileUploader = props => {
             </button>
         </Fragment>
     );
-}
+};
 
+FileUploader.propTypes = {
+    handleOnLoad: PropTypes.func.isRequired,
+    meetingId: PropTypes.string.isRequired
+}
 export default FileUploader;

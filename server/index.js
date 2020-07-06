@@ -1,6 +1,7 @@
 const express = require('express');
 const path = require('path');
 const logger = require('morgan');
+const fs = require('fs');
 const http = require('http');
 const socketIo = require('socket.io');
 
@@ -14,7 +15,12 @@ app.use(cors());
 app.use(logger('dev'));
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
-app.use(express.static(path.join(__dirname, 'uploads')));
+
+const uploadsFolderPath = path.join(__dirname, 'uploads');
+if (!fs.existsSync(uploadsFolderPath)) {
+    fs.mkdirSync(uploadsFolderPath);
+}
+app.use(express.static(uploadsFolderPath));
 app.use(express.static(path.join(__dirname, 'client-bundle', 'build')));
 
 const api = require('./routes/api');

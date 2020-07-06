@@ -3,13 +3,11 @@ import { createSelector } from 'reselect';
 import { LOGOUT } from "../action.constant"
 import * as msg from './message.reducer';
 import * as participants from './participants.reducer';
-import * as auth from './authentication.reducer';
 import * as meeting from './meeting.reducer';
 
 const appReducer = combineReducers({
     messages: msg.messageReducer,
     participants: participants.participantsReducer,
-    authentication: auth.authReducer,
     meeting: meeting.meetingReducer
 })
 
@@ -20,24 +18,26 @@ export const reducers = (state, action) => {
 
 export const getMeetingDetails = state => state.meeting;
 
-export const getAccessToken = state => auth.getAccessToken(state.authentication);
-export const getLoggedInUser = state => auth.getLoggedInUser(state.authentication);
-
 export const getMessages = state => msg.getMessages(state.messages);
 export const getParticipants = state => participants.getParticipants(state.participants);
 export const getActiveParticipant = state => participants.getActiveParticipant(state.participants);
 
-export const getParticipantsWithLastMsg = createSelector(
+export const getCurrentUser = userId => createSelector(
+    getParticipants,
+    (participants) => {
+        return participants.find(user => user.id === userId)
+    }
+)
+export const getParticipantsWithLastMsg = currentUserId => createSelector(
     getParticipants,
     getMessages,
-    getLoggedInUser,
-    (participants, messages, loggedInUser) => {
+    (participants, messages) => {
         const participantsWithLastMsg = participants.map(participant => {
             let lastChat;
             for (let i = (messages.length - 1); i >= 0; i--) {
                 if (
-                    (messages[i].senderId === loggedInUser._id && messages[i].recipientId === participant._id) ||
-                    (messages[i].senderId === participant._id && messages[i].recipientId === loggedInUser._id)
+                    (messages[i].senderId === currentUserId && messages[i].recipientId === participant._id) ||
+                    (messages[i].senderId === participant._id && messages[i].recipientId === currentUserId)
                 ) {
                     lastChat = messages[i];
                     break;
@@ -46,7 +46,7 @@ export const getParticipantsWithLastMsg = createSelector(
 
             return lastChat ? {
                 ...participant,
-                lastMsgBy: lastChat.msgType === 'sent' ? loggedInUser._id : participant._id,
+                lastMsgBy: lastChat.msgType === 'sent' ? currentUserId : participant._id,
                 recentMsg: lastChat.msg
             } : participant;
         })
@@ -69,7 +69,7 @@ export const getActiveParticipantMessage = createSelector(
             );
             participantMsgs.push(...allMsgWithActiveParticipant);
         }
-        
+
         return participantMsgs;
     }
 );

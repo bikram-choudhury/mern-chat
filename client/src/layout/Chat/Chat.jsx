@@ -1,59 +1,22 @@
-import PropTypes from 'prop-types';
-import React, { useEffect, useState, useCallback } from 'react';
-import { useHistory } from 'react-router-dom';
+import React, { useCallback, useEffect, useState } from 'react';
 import { connect } from 'react-redux';
-import Axios from 'axios';
-import ContactProfile from '../../components/ContactProfile/ContactProfile';
-import ContactWithLastChatMsg from '../../components/ContactWithLastChatMsg/ContactWithLastChatMsg';
-import Message from '../../components/Message/Message';
-import ProfileStatus from '../../components/ProfileStatus/ProfileStatus';
-import { saveMessage } from '../../redux/actions/message.actions';
-import {
-    setParticipantAsActive,
-    addParticipant,
-    removeParticipant
-} from '../../redux/actions/participants.action';
-import {
-    getActiveParticipant,
-    getMeetingDetails,
-    getParticipants,
-    getActiveParticipantMessage
-} from '../../redux/reducers';
-import client from '../../socket';
-import {
-    copyToClipboard,
-    getFirstTwoLetters,
-    createParticipantObjFromResponse
-} from '../../Utils/Utils';
-import { Fragment } from 'react';
-import ResizableTextarea from '../../components/Textarea/ResizableTextarea';
+import { useHistory } from 'react-router-dom';
+import PropTypes from 'prop-types';
+
+import { getMeetingDetails, getCurrentUser } from '../../redux/reducers';
+import { copyToClipboard, getFirstTwoLetters } from '../../Utils/Utils';
 import './Chat.scss';
-import EmojiPicker from '../../components/EmojiPicker/EmojiPicker';
-import FileUploader from '../../components/FileUploader/FileUploader';
-import FileViewer from '../../components/FileViewer/FileViewer';
-import { SERVER } from '../../settings';
+
+import client from '../../socket';
+import ActiveChatPanel from '../../components/ActiveChatPanel/ActiveChatPanel';
+import ProfileStatus from '../../components/ProfileStatus/ProfileStatus';
+import ParticipantList from '../../components/ParticipantList/ParticipantList';
 
 const ChatLayout = props => {
-    const {
-        participants,
-        activeParticipant,
-        addParticipant,
-        removeParticipant,
-        meeting,
-        selectParticipant,
-        saveMessage,
-        messages
-    } = props;
+    const { meeting, loggedInUser } = props;
     const [profileStatusVisibility, toggleProfileStatusVisibility] = useState(false);
-    const [messageInput, updateMessageInput] = useState('');
-    const [loggedInUser, setLoggedInUser] = useState({});
-    const [firstLettersForCurrentUser, setFirstLettersForCurrentUser] = useState('');
 
     const history = useHistory();
-    const firstParticipant = participants[0];
-    useEffect(() => {
-        selectParticipant(firstParticipant.id);
-    }, [selectParticipant, firstParticipant.id]);
 
     useEffect(() => {
         const handler = function (e) {
@@ -68,99 +31,18 @@ const ChatLayout = props => {
         }
     });
 
-    useEffect(() => {
-        const currentUser = participants.find(user => user.id === client.socketId);
-        setLoggedInUser(currentUser);
-    }, [participants]);
-
-    useEffect(() => {
-        setFirstLettersForCurrentUser(getFirstTwoLetters(loggedInUser.name));
-    }, [loggedInUser]);
-
-    useEffect(() => {
-        client._onMsgReceived(
-            ({ message, participant, participantId }) => {
-                saveMessage([message]);
-                if (participant) {
-                    addParticipant(
-                        createParticipantObjFromResponse([participant])
-                    );
-                } else if (participantId) {
-                    removeParticipant(participantId);
-                }
-            }
-        );
-        return () => {
-            client._offMsgReceived();
-            client._disconnect();
-        }
-    }, [saveMessage, addParticipant, removeParticipant]);
-
-    const momoizedDisconnected = useCallback(() => {
+    const momoizedDisconnect = useCallback(() => {
         history.push('/logout');
     }, [history]);
 
     useEffect(() => {
-        client._onDisconnect(momoizedDisconnected);
-    }, [momoizedDisconnected]);
+        client._onDisconnect(momoizedDisconnect);
+    }, [momoizedDisconnect]);
 
     const { protocol, host } = window.location;
     const inviteUrl = `${protocol}//${host}/join?meetingId=${meeting.id}`;
 
-    const handleSendMsg = () => {
-        const msgToSend = {
-            msg: messageInput,
-            senderId: loggedInUser.id,
-            recipientId: activeParticipant.id,
-            meetingId: meeting.id
-        };
-        client._sendMessage(msgToSend, (error, { msgId }) => {
-            handleSendMessageCallback(msgToSend, error, msgId);
-        });
-    };
-
-    const uploadFile = (file, meetingId) => {
-        return new Promise((resolve, reject) => {
-            const formData = new FormData();
-            formData.append('file', file);
-
-            const config = {
-                header: { 'content-type': 'multipart/form-data' }
-            }
-            Axios.post(`${SERVER}/api/uploadFiles/${meetingId}`, formData, config)
-                .then(({ data }) => resolve(data.filePath))
-                .catch(error => reject(error));
-        });
-    }
-    const handleFileOnLoad = file => {
-        uploadFile(file, meeting.id)
-            .then(filePath => {
-                const msgToSend = {
-                    isFile: true,
-                    name: file.name,
-                    type: file.type,
-                    path: filePath,
-                    senderId: loggedInUser.id,
-                    recipientId: activeParticipant.id,
-                    meetingId: meeting.id,
-                };
-                client._sendMessage(msgToSend, (error, { msgId }) => {
-                    handleSendMessageCallback(msgToSend, error, msgId);
-                });
-            }).catch(error => console.error(error));
-    };
-    const handleSendMessageCallback = (msgToSend, error, msgId) => {
-        if (error) {
-            console.log(error);
-            return;
-        }
-        saveMessage([{
-            ...msgToSend,
-            msgType: 'sent',
-            id: msgId
-        }]);
-        updateMessageInput('');
-    }
+    const firstLettersForCurrentUser = getFirstTwoLetters(loggedInUser.name);
 
     return Object.keys(loggedInUser).length ? (
         <div id="frame">
@@ -196,85 +78,11 @@ const ChatLayout = props => {
                     <input type="text" placeholder="Search participants..." />
                 </div>
                 <div id="contacts">
-                    <ul className="m-0 p-0">
-                        {
-                            participants.map(participant => {
-                                return (
-                                    <li className={
-                                        `contact ${participant.isActive ? 'active' : ''} ${participant.id === loggedInUser.id ? 'disabled' : ''}`
-                                    }
-                                        key={participant.id}
-                                        onClick={() => selectParticipant(participant.id)}
-                                    >
-                                        <ContactWithLastChatMsg
-                                            {...participant}
-                                            currentUserId={loggedInUser.id}
-                                        />
-                                    </li>
-                                )
-                            })
-                        }
-                    </ul>
+                    <ParticipantList />
                 </div>
             </div>
             <div className="content">
-                {
-                    activeParticipant ? (
-                        <Fragment>
-                            <ContactProfile
-                                name={activeParticipant.name}
-                                currentStatus={activeParticipant.currentStatus}
-                                socialMedia={true}
-                            />
-                            <div className="messages">
-                                <ul>
-                                    {
-                                        messages.map(message => {
-                                            const sender = participants.find(
-                                                user => user.id === message.senderId
-                                            ) || {};
-                                            return (
-                                                <li className={message.msgType} key={message.id}>
-                                                    {
-                                                        message.isFile ? (
-                                                            <FileViewer
-                                                                name={message.name}
-                                                                type={message.type}
-                                                                path={message.path}
-                                                                sender={sender}
-                                                            />
-                                                        ) : (
-                                                                <Message msg={message.msg} sender={sender} />
-                                                            )
-                                                    }
-
-                                                </li>
-                                            )
-                                        })
-                                    }
-                                </ul>
-
-                            </div>
-                            <div className="message-input">
-                                <div className="wrap">
-                                    <EmojiPicker
-                                        position="top left"
-                                        selected={emoji => updateMessageInput(messageInput + emoji)}
-                                    />
-                                    <ResizableTextarea
-                                        placeholder="Write your message..."
-                                        value={messageInput}
-                                        changed={updateMessageInput}
-                                    />
-                                    <FileUploader handleOnLoad={handleFileOnLoad} />
-                                    <button className="btn btn-primary" onClick={() => handleSendMsg()}>
-                                        <i className="fa fa-paper-plane" aria-hidden="true"></i>
-                                    </button>
-                                </div>
-                            </div>
-                        </Fragment>
-                    ) : null
-                }
+                <ActiveChatPanel meetingId={meeting.id} />
             </div>
 
         </div>
@@ -282,46 +90,27 @@ const ChatLayout = props => {
 };
 
 ChatLayout.propTypes = {
-    participants: PropTypes.arrayOf(
-        PropTypes.shape({
-            id: PropTypes.string,
-            name: PropTypes.string,
-            host: PropTypes.bool,
-            lastMsgBy: PropTypes.string,
-            recentMsg: PropTypes.string,
-            currentStatus: PropTypes.string,
-            isActive: PropTypes.bool
-        })
-    ),
-    activeParticipant: PropTypes.shape({
-        id: PropTypes.string,
-        name: PropTypes.string,
-        currentStatus: PropTypes.string
-    }),
-    selectParticipant: PropTypes.func,
-    saveMessage: PropTypes.func,
     meeting: PropTypes.shape({
         id: PropTypes.string.isRequired,
         name: PropTypes.string.isRequired
+    }),
+    loggedInUser: PropTypes.shape({
+        id: PropTypes.string,
+        name: PropTypes.string,
+        host: PropTypes.bool,
+        lastMsgBy: PropTypes.string,
+        recentMsg: PropTypes.string,
+        currentStatus: PropTypes.string,
+        isActive: PropTypes.bool
     })
 }
 
 const mapStateToProps = state => {
+    const currentUser = getCurrentUser(client.socketId);
     return {
-        participants: getParticipants(state),
-        activeParticipant: getActiveParticipant(state),
         meeting: getMeetingDetails(state),
-        messages: getActiveParticipantMessage(state)
+        loggedInUser: currentUser(state)
     }
 };
 
-const mapDispatchToProps = dispatch => {
-    return {
-        selectParticipant: (participantId) => dispatch(setParticipantAsActive(participantId)),
-        saveMessage: (message) => dispatch(saveMessage(message)),
-        addParticipant: (participant) => dispatch(addParticipant(participant)),
-        removeParticipant: (participant) => dispatch(removeParticipant(participant))
-    }
-}
-
-export default connect(mapStateToProps, mapDispatchToProps)(ChatLayout);
+export default connect(mapStateToProps)(ChatLayout);

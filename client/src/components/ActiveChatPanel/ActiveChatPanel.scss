@@ -1,0 +1,51 @@
+.messages {
+    flex-grow: 1;
+    overflow-y: scroll;
+    overflow-x: hidden;
+    &::-webkit-scrollbar {
+        width: 8px;
+        background: transparent;
+    }
+    &::-webkit-scrollbar-thumb {
+        background-color: rgba(0, 0, 0, 0.3);
+    }
+}
+
+.message-input {
+    z-index: 99;
+
+    .wrap {
+        display: flex;
+        position: relative;
+        background: #bbbbbb29;
+
+        textarea {
+            font-family: "proxima-nova", "Source Sans Pro", sans-serif;
+            border: none;
+            width: calc(100% - 90px);
+            padding: 11px 16px 10px 8px;
+            font-size: 16px;
+            color: #32465a;
+
+            &:focus {
+                outline: none;
+            }
+        }
+        .attachment {
+            z-index: 4;
+            font-size: 1.1em;
+            cursor: pointer;
+            align-self: center;
+            padding: 0 14px;
+            &:hover {
+                opacity: 1;
+            }
+        }
+        .btn {
+            border: none;
+            width: 50px;
+            padding: 12px 0;
+            align-self: flex-end;
+        }
+    }
+}
