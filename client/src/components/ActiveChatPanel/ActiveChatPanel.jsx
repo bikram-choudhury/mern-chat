@@ -90,9 +90,9 @@ const ActiveChatPanel = props => {
                 currentStatus={activeParticipant.currentStatus}
                 socialMedia={true}
             />
-            <div className="messages">
-                <MessageList />
-            </div>
+            
+            <MessageList />
+
             <div className="message-input">
                 <div className="wrap">
                     <EmojiPicker

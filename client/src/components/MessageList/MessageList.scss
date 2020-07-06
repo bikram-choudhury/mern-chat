@@ -1,45 +1,58 @@
-ul.message-list {
-    margin: 0;
-    padding: 0;
-    li {
-        display: flex;
-        font-size: 0.95em;
-        margin: 15px 15px 5px 15px;
+.messages {
+    flex-grow: 1;
+    overflow-y: scroll;
+    overflow-x: hidden;
+    &::-webkit-scrollbar {
+        width: 8px;
+        background: transparent;
+    }
+    &::-webkit-scrollbar-thumb {
+        background-color: rgba(0, 0, 0, 0.3);
+    }
 
-        &.sent {
-            .user-img {
-                padding-right: 10px;
+    ul {
+        margin: 0;
+        padding: 0;
+        li {
+            display: flex;
+            font-size: 0.95em;
+            margin: 15px 15px 5px 15px;
+    
+            &.sent {
+                .user-img {
+                    padding-right: 10px;
+                }
+    
+                p {
+                    background: #3886d2fa;
+                    color: #f5f5f5;
+                }
             }
-
-            p {
-                background: #3886d2fa;
-                color: #f5f5f5;
+            &.replies {
+                flex-direction: row-reverse;
+    
+                .user-img {
+                    padding-left: 10px;
+                }
+    
+                p {
+                    background: #f5f5f5;
+                }
             }
-        }
-        &.replies {
-            flex-direction: row-reverse;
-
-            .user-img {
-                padding-left: 10px;
+            &.notification {
+                justify-content: center;
+    
+                p {
+                    background: #2ecc71b5;
+                    padding: 3px 7px;
+                    border: 1px solid #2ecc71c7;
+                    border-radius: 5px;
+                    font-size: 11px;
+                }
             }
-
-            p {
-                background: #f5f5f5;
+            &:nth-last-child(1) {
+                margin-bottom: 20px;
             }
-        }
-        &.notification {
-            justify-content: center;
-
-            p {
-                background: #2ecc71b5;
-                padding: 3px 7px;
-                border: 1px solid #2ecc71c7;
-                border-radius: 5px;
-                font-size: 11px;
-            }
-        }
-        &:nth-last-child(1) {
-            margin-bottom: 20px;
         }
     }
 }
