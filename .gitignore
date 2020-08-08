@@ -11,3 +11,7 @@
 # production
 /server/client-bundle
 /client/build
+
+/server/package-lock.json
+/client/package-lock.json
+
