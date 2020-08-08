@@ -1,5 +1,6 @@
-import PropTypes from 'prop-types';
 import React, { Fragment } from 'react';
+import PropTypes from 'prop-types';
+import Linkify from 'linkifyjs/react';
 import { getFirstTwoLetters } from '../../Utils/Utils';
 import './Message.scss';
 
@@ -7,7 +8,7 @@ const Message = props => {
 
     const { sender, msg } = props;
     const firstLetters = getFirstTwoLetters(sender.name);
-    
+
     return (
         <Fragment>
             {
@@ -17,7 +18,15 @@ const Message = props => {
                     </div>
                 ) : null
             }
-            <p className="message">{msg}</p>
+            <Linkify
+                className="message"
+                tagName="p"
+                options={{
+                    className: "link",
+                    attributes: { rel: "noopener noreferrer" }
+                }}>
+                {msg}
+            </Linkify>
         </Fragment>
     );
 }

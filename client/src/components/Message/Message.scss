@@ -11,11 +11,16 @@
             align-items: center;
         }
     }
-    p {
+    p.message {
         padding: 10px 15px;
         border-radius: 20px;
         max-width: 300px;
         line-height: 1.2;
         margin: 0;
+
+        a.link {
+            color: #ffa726;
+            font-weight: 400;
+        }
     }
 }
