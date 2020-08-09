@@ -6,7 +6,8 @@ const ClientSocket = {
     socketId: null,
     _connect: function () {
         this.socket = connect(SOCKET_URL, {
-            reconnection: true
+            reconnection: true,
+            path: '/chat'
         });
         this.socket.on('connect', () => {
             this.socketId = this.socket.id;

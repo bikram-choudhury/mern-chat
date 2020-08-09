@@ -48,7 +48,7 @@ app.use((err, req, res, next) => {
 });
 
 const server = http.createServer(app);
-const sio = socketIo(server);
+const sio = socketIo(server, { path: '/chat' });
 const participantManager = require('./socketHandlers/participants');
 const meetingRoom = require('./socketHandlers/meeting-room');
 const Handlers = require('./socketHandlers/handler');
