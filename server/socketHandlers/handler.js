@@ -1,5 +1,6 @@
 const path = require('path');
 const fs = require('fs');
+const { v4: uuidV4 } = require('uuid');
 
 const participantManager = require('./participants');
 
@@ -62,7 +63,16 @@ function Handlers(clientSocket) {
             }
         }
     };
+    const startVideoCall = (invitation, callback) => {
+        const videoCID = uuidV4();
+        invitation.msg += `/${videoCID}`;
 
-    return { disconnect, sendMessage };
+        const message = createMsgToSend(invitation);
+        socket.to(invitation.recipientId).emit('message', { message });
+
+        callback(null, { videoCID });
+    }
+
+    return { disconnect, sendMessage, startVideoCall };
 };
 module.exports = Handlers;

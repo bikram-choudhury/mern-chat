@@ -21,7 +21,8 @@ const ActiveChatPanel = props => {
         addParticipant,
         removeParticipant,
         saveMessage,
-        meetingId
+        meetingId,
+        loggedInUser
     } = props;
 
     const [messageInput, updateMessageInput] = useState('');
@@ -81,7 +82,22 @@ const ActiveChatPanel = props => {
             id: msgId
         }]);
         updateMessageInput('');
-    }
+    };
+    const handleStartVideoCall = () => {
+        const { protocol, host } = window.location;
+        const inviteUrl = `${protocol}//${host}/join/video`;
+
+        const invitation = {
+            msg: `${loggedInUser.name.toUpperCase()} is inviting you to join a Personal Meeting Room ${inviteUrl}`,
+            senderId: currentUserId,
+            recipientId: activeParticipant.id,
+            meetingId
+        };
+        client._startVideoCall(invitation, (error, { videoCID }) => {
+            const url = `${inviteUrl}/${videoCID}`;
+            window.open(url, '_blank');
+        })
+    };
 
     return activeParticipant ? (
         <Fragment>
@@ -89,8 +105,9 @@ const ActiveChatPanel = props => {
                 name={activeParticipant.name}
                 currentStatus={activeParticipant.currentStatus}
                 socialMedia={true}
+                onStartVideoCall={handleStartVideoCall}
             />
-            
+
             <MessageList />
 
             <div className="message-input">

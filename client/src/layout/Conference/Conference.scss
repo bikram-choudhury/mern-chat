@@ -1,0 +1,104 @@
+.conference {
+    height: 100vh;
+    display: flex;
+
+    .conference__video {
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+        flex: 0.75;
+        background-color: #333333;
+
+        .conference__videoGrid {
+            flex: 1;
+            display: flex;
+            justify-content: center;
+            flex-wrap: wrap;
+            align-items: center;
+
+            video {
+                height: 300px;
+                width: 400px;
+                object-fit: cover;
+                padding: 8px;
+            }
+        }
+
+        .conference__videoControl {
+            background-color: #535051;
+            height: 60px;
+            display: flex;
+            justify-content: space-between;
+            padding: 5px;
+            color: #d2d2d2;
+
+            .conference__controlBlock {
+                display: flex;
+
+                .conference__controlBtn {
+                    display: flex;
+                    flex-direction: column;
+                    justify-content: center;
+                    align-items: center;
+                    padding: 8px 10px;
+                    min-width: 80px;
+                    cursor: pointer;
+
+                    &:hover {
+                        background-color: #343434;
+                        border-radius: 5px;
+                    }
+                    i {
+                        font-size: 24px;
+                    }
+                    .leave__meeting {
+                        color: #eb534b;
+                        white-space: nowrap;
+                    }
+                    &.unmute,
+                    &.stop {
+                        color: #cc3b33;
+                    }
+                }
+            }
+        }
+    }
+    .conference__chat {
+        background-color: #e6eaea;
+        flex: 0.25;
+        display: flex;
+        flex-direction: column;
+
+        .conference__chatHeader {
+            background-color: #fffff0;
+            padding: 10px;
+            font-size: 17px;
+            font-weight: 600;
+            text-align: center;
+            text-transform: uppercase;
+        }
+        .conference__chatBody {
+            flex: 1;
+            overflow-y: auto;
+        }
+        .conference__chatInputHolder {
+            display: flex;
+
+            .conference__chatInputField,
+            .conference__chatInputField:focus {
+                flex: 1;
+                padding: 10px;
+                border: none;
+                outline: none;
+                color: #6a6869;
+            }
+            .conference__chatInputBtn {
+                border: none;
+                background-color: #fff;
+                font-weight: bolder;
+                border-left: 1px solid #d8d7d7;
+                color: #494748;
+            }
+        }
+    }
+}

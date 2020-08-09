@@ -82,7 +82,7 @@ const ChatLayout = props => {
                 </div>
             </div>
             <div className="content">
-                <ActiveChatPanel meetingId={meeting.id} />
+                <ActiveChatPanel meetingId={meeting.id} loggedInUser={loggedInUser} />
             </div>
 
         </div>

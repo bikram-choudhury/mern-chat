@@ -107,6 +107,8 @@ sio.on('connection', socket => {
 
     socket.on('send-message', handler.sendMessage);
 
+    socket.on('start-videocall', handler.startVideoCall)
+
     socket.on('disconnect', handler.disconnect.bind(null, sio));
 });
 

@@ -25,6 +25,9 @@ const ClientSocket = {
     _onMsgReceived: function (onMsgReceived) {
         this.socket.on('message', onMsgReceived);
     },
+    _startVideoCall: function(invitation, callback) {
+        this.socket.emit('start-videocall', invitation, callback);
+    },
     _onDisconnect: function (onDisconnected) {
         this.socket.on('disconnect', onDisconnected);
     },
